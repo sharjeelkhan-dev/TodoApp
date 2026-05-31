@@ -23,24 +23,8 @@ An advanced, intelligent task management application built with **Kotlin** and *
 - **Networking:** Retrofit & OkHttp
 - **Reactive Programming:** Kotlin Coroutines & Flow
 
-## 🚀 Getting Started
-
 ### Prerequisites
 - Android Studio Ladybug (or newer)
 - A Google Gemini API Key
 - Firebase Project setup
-
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/To-Do-List-App.git
-   ```
-2. Open the project in Android Studio.
-3. Add your `GEMINI_API_KEY` to `app/build.gradle.kts` (or via Environment Variables).
-4. Sync Gradle and run the app!
-
-## 📸 Screenshots
-*(Add your screenshots here)*
-
----
-Developed with ❤️ by [Your Name]
+Developed with ❤️ by [Sharjeel Khan]
