@@ -2,7 +2,6 @@ package com.todoapp.presentation.screens.tasklist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.todoapp.domain.model.FilterOption
 import com.todoapp.domain.model.SortOrder
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
@@ -36,7 +35,7 @@ class TaskListViewModel @Inject constructor(
     private val addTaskUseCase: AddTaskUseCase,
     private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
     private val getSmartPrioritizationUseCase: GetSmartPrioritizationUseCase,
-    private val processAICommandUseCase: ProcessAICommandUseCase
+    private val processAICommandUseCase: ProcessAICommandUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskListState())

@@ -15,11 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
-/**
- * Implementation of AIRepository using Google AI SDK (Gemini).
- */
 class AIRepositoryImpl @Inject constructor(
-    private val generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel,
 ) : AIRepository {
 
     override suspend fun getPrioritizationScores(tasks: List<Task>): Result<Map<String, Int>> = withContext(Dispatchers.IO) {
@@ -123,13 +120,15 @@ class AIRepositoryImpl @Inject constructor(
                 try {
                     when (actionType) {
                         "ADD" -> {
-                            actions.add(AIAction.Add(
-                                title = obj.getString("title"),
-                                description = obj.optString("description", ""),
-                                priority = TaskPriority.valueOf(obj.optString("priority", "MEDIUM")),
-                                category = TaskCategory.valueOf(obj.optString("category", "OTHER")),
-                                dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null
-                            ))
+                            actions.add(
+                                AIAction.Add(
+                                    title = obj.getString("title"),
+                                    description = obj.optString("description", ""),
+                                    priority = TaskPriority.valueOf(obj.optString("priority", "MEDIUM")),
+                                    category = TaskCategory.valueOf(obj.optString("category", "OTHER")),
+                                    dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null
+                                )
+                            )
                         }
                         "UPDATE" -> {
                             actions.add(AIAction.Update(

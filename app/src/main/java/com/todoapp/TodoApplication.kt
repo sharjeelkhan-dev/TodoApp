@@ -14,11 +14,7 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-/**
- * Application class for TodoApp.
- * Annotated with @HiltAndroidApp to trigger Hilt code generation.
- * Implements WorkManager Configuration.Provider for HiltWorker support.
- */
+
 @HiltAndroidApp
 class TodoApplication : Application(), Configuration.Provider {
 

@@ -2,7 +2,6 @@
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -12,12 +11,12 @@ plugins {
 
 android {
     namespace = "com.todoapp"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.todoapp"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
 
@@ -49,10 +48,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -61,7 +56,7 @@ android {
 
 dependencies {
     // Desugaring for Java 8+ time APIs
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
@@ -114,9 +109,13 @@ dependencies {
     debugImplementation(libs.firebase.appcheck.debug)
 
     // Google Sign-In
+    //noinspection LoginCredentials
     implementation(libs.google.auth)
+    //noinspection LoginCredentials
     implementation(libs.credential.manager)
+    //noinspection LoginCredentials
     implementation(libs.credential.manager.play)
+    //noinspection LoginCredentials
     implementation(libs.google.id.identity)
 
     // WorkManager

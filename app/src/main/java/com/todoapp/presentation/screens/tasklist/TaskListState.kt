@@ -19,7 +19,7 @@ data class TaskListState(
     val isAICommandDialogOpen: Boolean = false,
     val error: String? = null,
     val recentlyDeletedTask: Task? = null,
-    val showFilterSheet: Boolean = false
+    val showFilterSheet: Boolean = false,
 )
 
 /**
