@@ -51,12 +51,11 @@ fun TaskListScreen(
     state: TaskListState,
     isDarkMode: Boolean,
     onEvent: (TaskListEvent) -> Unit,
-    onNavigateToAddTask: () -> Unit,
     onNavigateToEditTask: (String) -> Unit,
     onNavigateToSettings: () -> Unit,
     snackbarHostState: SnackbarHostState,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    initiallyExpanded: Boolean = false
+    initiallyExpanded: Boolean = false,
 ) {
     val listState = rememberLazyListState()
     val isDarkTheme = isSystemInDarkTheme()
@@ -171,27 +170,29 @@ fun TaskListScreen(
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         ) {
             Surface(
-                modifier = Modifier.size(150.dp),
-                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier.size(180.dp),
+                shape = RoundedCornerShape(32.dp),
                 color = cardBg,
-                tonalElevation = 8.dp
+                tonalElevation = 12.dp,
+                border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f))
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     CircularProgressIndicator(
                         color = brandColor,
-                        strokeWidth = 4.dp,
-                        modifier = Modifier.size(48.dp)
+                        strokeWidth = 3.dp,
+                        modifier = Modifier.size(56.dp)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     Text(
-                        text = "AI Thinking...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = secondaryText,
-                        fontWeight = FontWeight.Bold
+                        text = "Gemini is working...",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = brandColor,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 }
             }
@@ -200,13 +201,20 @@ fun TaskListScreen(
 
     if (state.isAICommandDialogOpen) {
         var aiPrompt by remember { mutableStateOf("") }
+        val suggestions = listOf(
+            "Add task buy groceries",
+            "Mark study as done",
+            "Delete old tasks"
+        )
+
         Dialog(
             onDismissRequest = { onEvent(TaskListEvent.ToggleAICommandDialog) }
         ) {
             Surface(
-                shape = RoundedCornerShape(28.dp),
+                shape = RoundedCornerShape(32.dp),
                 color = cardBg,
-                tonalElevation = 6.dp,
+                tonalElevation = 8.dp,
+                border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -215,64 +223,117 @@ fun TaskListScreen(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = brandColor,
-                        modifier = Modifier.size(40.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(brandColor.copy(alpha = 0.1f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = null,
+                            tint = brandColor,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                    
                     Spacer(modifier = Modifier.height(16.dp))
+                    
                     Text(
-                        text = "AI Command",
+                        text = "AI Task Assistant",
                         style = MaterialTheme.typography.headlineSmall,
                         color = primaryText,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.ExtraBold
                     )
+                    
                     Spacer(modifier = Modifier.height(8.dp))
+                    
                     Text(
-                        text = "Try \"Add a task to buy milk\" or \"Mark my swimming task as done\"",
+                        text = "Tell me what you'd like to do with your tasks.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = secondaryText,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Suggestion Chips
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        suggestions.forEach { suggestion ->
+                            SuggestionChip(
+                                onClick = { aiPrompt = suggestion },
+                                label = { 
+                                    Text(
+                                        suggestion.take(15) + "...", 
+                                        style = MaterialTheme.typography.labelSmall
+                                    ) 
+                                },
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
                     OutlinedTextField(
                         value = aiPrompt,
                         onValueChange = { aiPrompt = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Enter your command...") },
-                        shape = RoundedCornerShape(16.dp),
-                        maxLines = 3,
+                        placeholder = { Text("Type here...") },
+                        shape = RoundedCornerShape(20.dp),
+                        maxLines = 4,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = brandColor,
-                            unfocusedBorderColor = secondaryText.copy(alpha = 0.5f),
+                            unfocusedBorderColor = secondaryText.copy(alpha = 0.3f),
+                            focusedContainerColor = bgColor.copy(alpha = 0.5f),
+                            unfocusedContainerColor = bgColor.copy(alpha = 0.5f),
                             focusedTextColor = primaryText,
                             unfocusedTextColor = primaryText
                         )
                     )
+                    
                     Spacer(modifier = Modifier.height(24.dp))
+                    
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        TextButton(onClick = { onEvent(TaskListEvent.SmartPrioritize) }) {
-                            Text("Smart Prioritize", color = brandColor)
+                        OutlinedButton(
+                            onClick = { onEvent(TaskListEvent.ToggleAICommandDialog) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, secondaryText.copy(alpha = 0.3f))
+                        ) {
+                            Text("Cancel", color = secondaryText)
                         }
                         
-                        Row {
-                            TextButton(onClick = { onEvent(TaskListEvent.ToggleAICommandDialog) }) {
-                                Text("Cancel")
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = { onEvent(TaskListEvent.ExecuteAICommand(aiPrompt)) },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = brandColor)
-                            ) {
-                                Text("Execute")
-                            }
+                        Button(
+                            onClick = { 
+                                if (aiPrompt.isNotBlank()) {
+                                    onEvent(TaskListEvent.ExecuteAICommand(aiPrompt))
+                                }
+                            },
+                            modifier = Modifier.weight(1.5f),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = brandColor),
+                            enabled = aiPrompt.isNotBlank()
+                        ) {
+                            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Execute")
                         }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    TextButton(
+                        onClick = { onEvent(TaskListEvent.SmartPrioritize) }
+                    ) {
+                        Text("✨ Auto-Prioritize All Tasks", color = brandColor, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -633,7 +694,6 @@ fun TaskListScreenPreview() {
             ),
             isDarkMode = false,
             onEvent = {},
-            onNavigateToAddTask = {},
             onNavigateToEditTask = {},
             onNavigateToSettings = {},
             snackbarHostState = remember { SnackbarHostState() }
