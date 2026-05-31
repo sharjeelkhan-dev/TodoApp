@@ -25,6 +25,10 @@ class AuthRepositoryImpl @Inject constructor(
     override val currentUserId: String?
         get() = authDataSource.currentUserId
 
+    override suspend fun signInAnonymously(): Result<UserProfile> {
+        return authDataSource.signInAnonymously()
+    }
+
     override suspend fun signInWithEmail(email: String, password: String): Result<UserProfile> {
         return authDataSource.signInWithEmail(email, password)
     }

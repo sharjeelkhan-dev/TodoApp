@@ -17,6 +17,9 @@ interface AuthRepository {
     /** Get the current user's UID. */
     val currentUserId: String?
 
+    /** Sign in anonymously to link backups to the device installation. */
+    suspend fun signInAnonymously(): Result<UserProfile>
+
     /** Sign in with email and password. */
     suspend fun signInWithEmail(email: String, password: String): Result<UserProfile>
 

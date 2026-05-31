@@ -1,7 +1,9 @@
 package com.todoapp.di
 
+import com.todoapp.data.repository.AIRepositoryImpl
 import com.todoapp.data.repository.AuthRepositoryImpl
 import com.todoapp.data.repository.TaskRepositoryImpl
+import com.todoapp.domain.repository.AIRepository
 import com.todoapp.domain.repository.AuthRepository
 import com.todoapp.domain.repository.TaskRepository
 import dagger.Binds
@@ -24,4 +26,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAIRepository(impl: AIRepositoryImpl): AIRepository
 }

@@ -18,7 +18,6 @@ import javax.inject.Singleton
 /**
  * Implementation of TaskRepository.
  * Bridges Room (local) and Firestore (remote) data sources.
- * Room is the single source of truth (offline-first).
  */
 @Singleton
 class TaskRepositoryImpl @Inject constructor(
@@ -27,7 +26,6 @@ class TaskRepositoryImpl @Inject constructor(
 ) : TaskRepository {
 
     override fun getTasks(filter: FilterOption): Flow<List<Task>> {
-        // Get base flow based on sort order
         val baseFlow = when (filter.sortOrder) {
             SortOrder.DATE_CREATED_ASC -> taskDao.getTasksByCreatedAsc()
             SortOrder.DATE_CREATED_DESC -> taskDao.getAllTasks()
@@ -36,9 +34,9 @@ class TaskRepositoryImpl @Inject constructor(
             SortOrder.PRIORITY_HIGH_FIRST -> taskDao.getTasksByPriorityHighFirst()
             SortOrder.PRIORITY_LOW_FIRST -> taskDao.getTasksByPriorityLowFirst()
             SortOrder.ALPHABETICAL -> taskDao.getTasksAlphabetical()
+            SortOrder.AI_SMART -> taskDao.getTasksByAISmart()
         }
 
-        // Apply additional filters in-memory
         return baseFlow.map { entities ->
             entities.toDomainModels().filter { task ->
                 val statusMatch = filter.status?.let { task.isCompleted == it } ?: true
@@ -76,45 +74,53 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun syncToCloud() {
         try {
-            // Upload pending tasks
             val pendingUploads = taskDao.getPendingUploadTasks()
             for (task in pendingUploads) {
-                if (task.userId.isNotBlank()) {
-                    firestoreDataSource.uploadTask(task.userId, task)
-                    taskDao.markAsSynced(task.id)
-                }
+                // Use default_user if userId is empty
+                val uId = if (task.userId.isBlank()) "default_user" else task.userId
+                firestoreDataSource.uploadTask(uId, task)
+                taskDao.markAsSynced(task.id)
             }
 
-            // Delete pending deletions from cloud
             val pendingDeletes = taskDao.getPendingDeleteTasks()
             for (task in pendingDeletes) {
-                if (task.userId.isNotBlank()) {
-                    firestoreDataSource.deleteTask(task.userId, task.id)
-                }
+                val uId = if (task.userId.isBlank()) "default_user" else task.userId
+                firestoreDataSource.deleteTask(uId, task.id)
                 taskDao.hardDeleteTask(task.id)
             }
-        } catch (_: Exception) {
-            // Sync failures are silent — will retry on next sync
-        }
+        } catch (_: Exception) {}
     }
 
     override suspend fun syncFromCloud(userId: String) {
         try {
             val remoteTasks = firestoreDataSource.fetchAllTasks(userId)
             taskDao.upsertTasks(remoteTasks)
-        } catch (_: Exception) {
-            // Sync failures are silent — local data remains valid
-        }
+        } catch (_: Exception) {}
     }
 
     override suspend fun backupTasks(userId: String) {
-        val tasks = taskDao.getTasksByUser(userId)
-        firestoreDataSource.backupTasks(userId, tasks)
+        // Fetch all local tasks, ignoring their individual userId fields
+        val tasks = taskDao.getAllTasksForBackup()
+        if (tasks.isNotEmpty()) {
+            // Assign the backup userId to all tasks before uploading
+            val tasksWithUserId = tasks.map { it.copy(userId = userId) }
+            firestoreDataSource.backupTasks(userId, tasksWithUserId)
+        } else {
+            throw Exception("No tasks to backup")
+        }
     }
 
     override suspend fun restoreTasks(userId: String) {
         val restoredTasks = firestoreDataSource.restoreTasks(userId)
-        taskDao.deleteAllTasks()
-        taskDao.upsertTasks(restoredTasks)
+        if (restoredTasks.isNotEmpty()) {
+            // Ensure restored tasks maintain their original sync status (synced)
+            val entitiesToRestore = restoredTasks.map { it.copy(syncStatus = 0) }
+            
+            // Perform delete and insert in a single step
+            taskDao.deleteAllTasks()
+            taskDao.upsertTasks(entitiesToRestore)
+        } else {
+            throw Exception("No backup found to restore")
+        }
     }
 }

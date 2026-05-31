@@ -10,5 +10,6 @@ enum class SortOrder(val label: String) {
     DUE_DATE_DESC("Due Date (Latest)"),
     PRIORITY_HIGH_FIRST("Priority (High → Low)"),
     PRIORITY_LOW_FIRST("Priority (Low → High)"),
-    ALPHABETICAL("Alphabetical (A–Z)")
+    ALPHABETICAL("Alphabetical (A–Z)"),
+    AI_SMART("Smart Priority (AI)")
 }

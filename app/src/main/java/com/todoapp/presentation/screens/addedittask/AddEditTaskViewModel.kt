@@ -3,6 +3,8 @@ package com.todoapp.presentation.screens.addedittask
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.todoapp.data.util.ReminderManager
+import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
@@ -19,11 +21,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.UUID
 import javax.inject.Inject
 
 /**
  * ViewModel for the Add/Edit Task screen.
  * Loads existing task data if editing, validates and saves tasks.
+ * Now includes ReminderManager to schedule notifications.
  */
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
@@ -32,7 +36,8 @@ class AddEditTaskViewModel @Inject constructor(
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val reminderManager: ReminderManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddEditTaskState())
@@ -73,10 +78,37 @@ class AddEditTaskViewModel @Inject constructor(
             AddEditTaskEvent.ToggleTimePicker -> {
                 _state.update { it.copy(showTimePicker = !it.showTimePicker) }
             }
+            is AddEditTaskEvent.ToggleReminder -> {
+                _state.update { it.copy(isReminderEnabled = event.isEnabled) }
+            }
             AddEditTaskEvent.Save -> saveTask()
             AddEditTaskEvent.Delete -> deleteTask()
             AddEditTaskEvent.ClearError -> {
                 _state.update { it.copy(error = null) }
+            }
+            AddEditTaskEvent.AddSubTask -> {
+                _state.update {
+                    it.copy(subTasks = it.subTasks + SubTask())
+                }
+            }
+            is AddEditTaskEvent.RemoveSubTask -> {
+                _state.update {
+                    it.copy(subTasks = it.subTasks.filter { subTask -> subTask.id != event.subTaskId })
+                }
+            }
+            is AddEditTaskEvent.SubTaskTitleChanged -> {
+                _state.update {
+                    it.copy(subTasks = it.subTasks.map { subTask ->
+                        if (subTask.id == event.subTaskId) subTask.copy(title = event.title) else subTask
+                    })
+                }
+            }
+            is AddEditTaskEvent.ToggleSubTaskCompletion -> {
+                _state.update {
+                    it.copy(subTasks = it.subTasks.map { subTask ->
+                        if (subTask.id == event.subTaskId) subTask.copy(isCompleted = !subTask.isCompleted) else subTask
+                    })
+                }
             }
         }
     }
@@ -96,6 +128,8 @@ class AddEditTaskViewModel @Inject constructor(
                         priority = task.priority,
                         dueDate = task.dueDate,
                         dueTime = task.dueTime,
+                        isReminderEnabled = task.isReminderEnabled,
+                        subTasks = task.subTasks,
                         isEditing = true,
                         isLoading = false
                     )
@@ -112,18 +146,22 @@ class AddEditTaskViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
 
             val userId = authRepository.currentUserId ?: ""
+            val taskId = currentState.taskId ?: UUID.randomUUID().toString()
+            
             val task = Task(
-                id = currentState.taskId ?: "",
+                id = taskId,
                 title = currentState.title.trim(),
                 description = currentState.description.trim(),
                 category = currentState.category,
                 priority = currentState.priority,
                 dueDate = currentState.dueDate,
                 dueTime = currentState.dueTime,
+                isReminderEnabled = currentState.isReminderEnabled,
                 createdAt = currentTask?.createdAt ?: Date(),
                 updatedAt = Date(),
                 userId = userId,
-                isCompleted = currentTask?.isCompleted ?: false
+                isCompleted = currentTask?.isCompleted ?: false,
+                subTasks = currentState.subTasks
             )
 
             val result = if (currentState.isEditing) {
@@ -134,6 +172,8 @@ class AddEditTaskViewModel @Inject constructor(
 
             result.fold(
                 onSuccess = {
+                    // Schedule reminder after successful save
+                    reminderManager.scheduleReminder(task)
                     _state.update { it.copy(isLoading = false, isSaved = true) }
                 },
                 onFailure = { error ->
@@ -151,6 +191,7 @@ class AddEditTaskViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             deleteTaskUseCase(taskToDelete).fold(
                 onSuccess = {
+                    reminderManager.cancelReminder(taskToDelete.id)
                     _state.update { it.copy(isLoading = false, isSaved = true) }
                 },
                 onFailure = { error ->

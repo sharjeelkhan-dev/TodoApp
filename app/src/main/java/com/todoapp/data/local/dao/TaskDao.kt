@@ -67,6 +67,9 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE syncStatus != 2 ORDER BY title ASC")
     fun getTasksAlphabetical(): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks WHERE syncStatus != 2 ORDER BY aiPriorityScore DESC, createdAt DESC")
+    fun getTasksByAISmart(): Flow<List<TaskEntity>>
+
     // ─── Write Operations ──────────────────────────────
 
     /** Insert or update a task. Uses UPSERT (insert or replace). */
@@ -103,7 +106,11 @@ interface TaskDao {
     @Query("UPDATE tasks SET syncStatus = 0 WHERE id = :taskId")
     suspend fun markAsSynced(taskId: String)
 
-    /** Get all tasks for a specific user (for backup). */
+    /** Get all tasks for backup (regardless of userId). */
+    @Query("SELECT * FROM tasks WHERE syncStatus != 2")
+    suspend fun getAllTasksForBackup(): List<TaskEntity>
+
+    /** Get all tasks for a specific user. */
     @Query("SELECT * FROM tasks WHERE userId = :userId AND syncStatus != 2")
     suspend fun getTasksByUser(userId: String): List<TaskEntity>
 

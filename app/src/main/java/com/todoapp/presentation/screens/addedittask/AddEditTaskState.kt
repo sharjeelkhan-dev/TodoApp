@@ -1,5 +1,6 @@
 package com.todoapp.presentation.screens.addedittask
 
+import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
@@ -21,7 +22,9 @@ data class AddEditTaskState(
     val isSaved: Boolean = false,
     val error: String? = null,
     val showDatePicker: Boolean = false,
-    val showTimePicker: Boolean = false
+    val showTimePicker: Boolean = false,
+    val isReminderEnabled: Boolean = false,
+    val subTasks: List<SubTask> = emptyList()
 )
 
 /**
@@ -36,7 +39,12 @@ sealed class AddEditTaskEvent {
     data class DueTimeChanged(val time: String?) : AddEditTaskEvent()
     data object ToggleDatePicker : AddEditTaskEvent()
     data object ToggleTimePicker : AddEditTaskEvent()
+    data class ToggleReminder(val isEnabled: Boolean) : AddEditTaskEvent()
     data object Save : AddEditTaskEvent()
     data object Delete : AddEditTaskEvent()
     data object ClearError : AddEditTaskEvent()
+    data object AddSubTask : AddEditTaskEvent()
+    data class RemoveSubTask(val subTaskId: String) : AddEditTaskEvent()
+    data class SubTaskTitleChanged(val subTaskId: String, val title: String) : AddEditTaskEvent()
+    data class ToggleSubTaskCompletion(val subTaskId: String) : AddEditTaskEvent()
 }

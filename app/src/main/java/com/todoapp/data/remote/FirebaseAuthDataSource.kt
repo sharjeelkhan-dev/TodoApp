@@ -36,6 +36,18 @@ class FirebaseAuthDataSource @Inject constructor(
     val currentUserId: String?
         get() = auth.currentUser?.uid
 
+    /** Sign in anonymously without credentials. */
+    suspend fun signInAnonymously(): Result<UserProfile> {
+        return try {
+            val result = auth.signInAnonymously().await()
+            val user = result.user ?: throw Exception("Anonymous sign in failed: user is null")
+            Result.success(user.toUserProfile())
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            Result.failure(e)
+        }
+    }
+
     /** Sign in with email and password. */
     suspend fun signInWithEmail(email: String, password: String): Result<UserProfile> {
         return try {

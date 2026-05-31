@@ -9,7 +9,9 @@ import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
 import com.todoapp.domain.usecase.AddTaskUseCase
 import com.todoapp.domain.usecase.DeleteTaskUseCase
+import com.todoapp.domain.usecase.GetSmartPrioritizationUseCase
 import com.todoapp.domain.usecase.GetTasksUseCase
+import com.todoapp.domain.usecase.ProcessAICommandUseCase
 import com.todoapp.domain.usecase.SearchTasksUseCase
 import com.todoapp.domain.usecase.ToggleTaskCompletionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +34,9 @@ class TaskListViewModel @Inject constructor(
     private val searchTasksUseCase: SearchTasksUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val addTaskUseCase: AddTaskUseCase,
-    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase
+    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
+    private val getSmartPrioritizationUseCase: GetSmartPrioritizationUseCase,
+    private val processAICommandUseCase: ProcessAICommandUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskListState())
@@ -94,6 +98,17 @@ class TaskListViewModel @Inject constructor(
                     deleteTaskUseCase(event.task)
                 }
             }
+            is TaskListEvent.ToggleSubTask -> {
+                viewModelScope.launch {
+                    val task = _state.value.tasks.find { it.id == event.taskId } ?: return@launch
+                    val updatedSubTasks = task.subTasks.map {
+                        if (it.id == event.subTaskId) it.copy(isCompleted = !it.isCompleted) else it
+                    }
+                    val updatedTask = task.copy(subTasks = updatedSubTasks)
+                    // We can reuse AddTaskUseCase as it handles upsert
+                    addTaskUseCase(updatedTask)
+                }
+            }
             TaskListEvent.UndoDelete -> {
                 viewModelScope.launch {
                     _state.value.recentlyDeletedTask?.let { task ->
@@ -102,6 +117,9 @@ class TaskListViewModel @Inject constructor(
                     }
                 }
             }
+            TaskListEvent.ClearDeletedTask -> {
+                _state.update { it.copy(recentlyDeletedTask = null) }
+            }
             TaskListEvent.ClearError -> {
                 _state.update { it.copy(error = null) }
             }
@@ -109,6 +127,47 @@ class TaskListViewModel @Inject constructor(
                 _state.update { it.copy(showFilterSheet = !it.showFilterSheet) }
             }
             TaskListEvent.RefreshTasks -> observeTasks()
+            TaskListEvent.SmartPrioritize -> smartPrioritize()
+            TaskListEvent.ToggleAICommandDialog -> {
+                _state.update { it.copy(isAICommandDialogOpen = !it.isAICommandDialogOpen) }
+            }
+            is TaskListEvent.ExecuteAICommand -> executeAICommand(event.prompt)
+        }
+    }
+
+    private fun executeAICommand(prompt: String) {
+        if (prompt.isBlank()) return
+
+        viewModelScope.launch {
+            _state.update { it.copy(isAIThinking = true, isAICommandDialogOpen = false, error = null) }
+            val result = processAICommandUseCase(prompt)
+            _state.update { it.copy(isAIThinking = false) }
+
+            result.onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "AI Command failed") }
+            }
+        }
+    }
+
+    private fun smartPrioritize() {
+        if (_state.value.tasks.isEmpty()) {
+            _state.update { it.copy(error = "Add some tasks first to prioritize!") }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isAIThinking = true, error = null) }
+            val result = getSmartPrioritizationUseCase()
+            _state.update { it.copy(isAIThinking = false) }
+
+            result.onFailure { e ->
+                _state.update { it.copy(error = e.message ?: "AI Prioritization failed") }
+            }
+            
+            // Automatically switch to AI_SMART sort order if prioritization succeeded
+            result.onSuccess {
+                onEvent(TaskListEvent.SortBy(SortOrder.AI_SMART))
+            }
         }
     }
 

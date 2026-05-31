@@ -11,63 +11,70 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.todoapp.presentation.screens.addedittask.AddEditTaskScreen
 import com.todoapp.presentation.screens.addedittask.AddEditTaskViewModel
-import com.todoapp.presentation.screens.auth.AuthScreen
-import com.todoapp.presentation.screens.auth.AuthViewModel
+import com.todoapp.presentation.screens.auth.LoginScreen
+import com.todoapp.presentation.screens.auth.LoginViewModel
+import com.todoapp.presentation.screens.main.MainScreen
+import com.todoapp.presentation.screens.splash.SplashScreen
+import com.todoapp.presentation.screens.splash.SplashViewModel
 import com.todoapp.presentation.screens.settings.SettingsScreen
 import com.todoapp.presentation.screens.settings.SettingsViewModel
-import com.todoapp.presentation.screens.tasklist.TaskListScreen
-import com.todoapp.presentation.screens.tasklist.TaskListViewModel
 
 /**
  * Main navigation graph for the app.
- * Determines start destination based on auth state.
+ * Starts with Splash Screen which logs in user anonymously in background.
  */
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    isSignedIn: Boolean,
     isDarkMode: Boolean,
     onToggleDarkMode: (Boolean) -> Unit
 ) {
-    val startDestination = if (isSignedIn) Screen.TaskList.route else Screen.Auth.route
-
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Splash.route
     ) {
-        // ─── Auth Screen ──────────────────────────────
-        composable(route = Screen.Auth.route) {
-            val viewModel: AuthViewModel = hiltViewModel()
-            val state by viewModel.state.collectAsState()
+        // ─── Splash Screen ──────────────────────────────
+        composable(route = Screen.Splash.route) {
+            val viewModel: SplashViewModel = hiltViewModel()
+            val tasksCount by viewModel.tasksCount.collectAsState()
+            val doneCount by viewModel.doneCount.collectAsState()
+            val isAuthenticated by viewModel.isAuthenticated.collectAsState()
 
-            AuthScreen(
-                state = state,
-                onEvent = viewModel::onEvent,
-                onNavigateToTasks = {
-                    navController.navigate(Screen.TaskList.route) {
-                        popUpTo(Screen.Auth.route) { inclusive = true }
+            SplashScreen(
+                isDarkMode = isDarkMode,
+                tasksCount = tasksCount,
+                doneCount = doneCount,
+                onNavigateToHome = {
+                    val destination = if (isAuthenticated) Screen.Main.route else Screen.Login.route
+                    navController.navigate(destination) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        // ─── Task List Screen ──────────────────────────────
-        composable(route = Screen.TaskList.route) {
-            val viewModel: TaskListViewModel = hiltViewModel()
+        // ─── Login Screen ──────────────────────────────
+        composable(route = Screen.Login.route) {
+            val viewModel: LoginViewModel = hiltViewModel()
             val state by viewModel.state.collectAsState()
 
-            TaskListScreen(
+            LoginScreen(
                 state = state,
+                isDarkMode = isDarkMode,
                 onEvent = viewModel::onEvent,
-                onNavigateToAddTask = {
-                    navController.navigate(Screen.AddEditTask.createRoute())
-                },
-                onNavigateToEditTask = { taskId ->
-                    navController.navigate(Screen.AddEditTask.createRoute(taskId))
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Screen.Settings.route)
+                onNavigateToHome = {
+                    navController.navigate(Screen.Main.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
                 }
+            )
+        }
+
+        // ─── Main Screen (Tabs) ─────────────────────────
+        composable(route = Screen.Main.route) {
+            MainScreen(
+                navController = navController,
+                isDarkMode = isDarkMode
             )
         }
 
@@ -86,6 +93,7 @@ fun NavGraph(
 
             AddEditTaskScreen(
                 state = state,
+                isDarkMode = isDarkMode,
                 onEvent = viewModel::onEvent,
                 onNavigateBack = { navController.popBackStack() }
             )
@@ -103,8 +111,9 @@ fun NavGraph(
                 onEvent = viewModel::onEvent,
                 onNavigateBack = { navController.popBackStack() },
                 onSignedOut = {
-                    navController.navigate(Screen.Auth.route) {
-                        popUpTo(0) { inclusive = true }
+                    // Navigate to Login screen and clear the task list/main screen from stack
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
                     }
                 }
             )

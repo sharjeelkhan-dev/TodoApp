@@ -5,9 +5,6 @@ import androidx.room.PrimaryKey
 
 /**
  * Room entity representing a task stored in the local database.
- * This is the single source of truth for offline-first architecture.
- *
- * @param syncStatus 0 = synced, 1 = pending upload, 2 = pending delete
  */
 @Entity(tableName = "tasks")
 data class TaskEntity(
@@ -18,10 +15,13 @@ data class TaskEntity(
     val category: String,
     val priority: String,
     val isCompleted: Boolean,
-    val dueDate: Long?,          // Stored as epoch millis
-    val dueTime: String?,        // "HH:mm" format
-    val createdAt: Long,         // Epoch millis
-    val updatedAt: Long,         // Epoch millis
+    val isReminderEnabled: Boolean = false,
+    val dueDate: Long?,
+    val dueTime: String?,
+    val createdAt: Long,
+    val updatedAt: Long,
     val userId: String,
-    val syncStatus: Int = 0      // 0=synced, 1=pendingUpload, 2=pendingDelete
+    val syncStatus: Int = 0,
+    val aiPriorityScore: Int? = null,
+    val subTasks: String? = null // JSON string of List<SubTask>
 )

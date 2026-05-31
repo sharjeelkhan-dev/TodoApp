@@ -1,9 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="97.25"
+    android:viewportHeight="122.88">
+  <group android:scaleX="0.33239746"
+      android:scaleY="0.42"
+      android:translateX="32.462173"
+      android:translateY="35.6352">
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M31,63.923c0.057,0.223 0.167,0.43 0.324,0.614c0.157,0.184 0.355,0.335 0.582,0.443c0.227,0.108 0.475,0.167 0.727,0.174c0.252,0.007 0.503,-0.039 0.738,-0.136l25.999,-10.727c0.235,-0.097 0.447,-0.245 0.622,-0.435c0.175,-0.19 0.306,-0.415 0.384,-0.661c0.078,-0.246 0.106,-0.506 0.082,-0.763c-0.024,-0.257 -0.1,-0.504 -0.224,-0.726l-13.738,-24.471c-0.124,-0.222 -0.298,-0.412 -0.51,-0.556c-0.212,-0.144 -0.455,-0.24 -0.712,-0.281c-0.257,-0.041 -0.521,-0.031 -0.773,0.029c-0.252,0.06 -0.488,0.171 -0.692,0.326L31.324,59.923c-0.204,0.155 -0.37,0.354 -0.487,0.583c-0.117,0.229 -0.184,0.481 -0.197,0.738c-0.013,0.257 0.027,0.514 0.118,0.753c0.091,0.239 0.23,0.457 0.409,0.641l0.033,0.033c0,-0.001 0,-0.001 0,-0.001Z" />
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.28,8.23h8.55L17.83,2.85a2.86,2.86 0,0 1,5.71 0L23.54,8.23L36.09,8.23L36.09,2.85a2.85,2.85 0,0 1,5.7 0L41.79,8.23L54.34,8.23L54.34,2.85a2.86,2.86 0,0 1,5.71 0L60.05,8.23L72.6,8.23L72.6,2.85a2.85,2.85 0,1 1,5.7 0L78.3,8.23L88,8.23a9.29,9.29 0,0 1,9.27 9.28L97.27,113.6A9.32,9.32 0,0 1,88 122.88L9.28,122.88A9.3,9.3 0,0 1,0 113.6L0,17.51A9.29,9.29 0,0 1,9.28 8.23ZM21.28,98.54a2.77,2.77 0,0 1,0 -5.54L76,93a2.77,2.77 0,0 1,0 5.54ZM21.28,80.28a2.77,2.77 0,0 1,0 -5.53L76,74.75a2.77,2.77 0,0 1,0 5.53ZM21.28,62.03a2.77,2.77 0,0 1,0 -5.54L76,56.49A2.77,2.77 0,0 1,76 62ZM21.28,43.77a2.77,2.77 0,0 1,0 -5.53L76,38.24a2.77,2.77 0,0 1,0 5.53ZM78.34,13.77v5.38a2.85,2.85 0,1 1,-5.7 0L72.64,13.76L60.05,13.76v5.38a2.86,2.86 0,0 1,-5.71 0L54.34,13.76L41.79,13.76v5.38a2.85,2.85 0,0 1,-5.7 0L36.09,13.76L23.54,13.76v5.38a2.86,2.86 0,0 1,-5.71 0L17.83,13.76L9.28,13.76a3.7,3.7 0,0 0,-2.64 1.1,3.75 3.75,0 0,0 -1.11,2.65L5.53,113.6a3.79,3.79 0,0 0,3.75 3.75L88,117.35a3.76,3.76 0,0 0,3.74 -3.75L91.74,17.51A3.76,3.76 0,0 0,88 13.76Z"/>
+  </group>
 </vector>

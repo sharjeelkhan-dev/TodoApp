@@ -15,6 +15,8 @@ data class TaskListState(
     val isSearchActive: Boolean = false,
     val filter: FilterOption = FilterOption(),
     val isLoading: Boolean = false,
+    val isAIThinking: Boolean = false,
+    val isAICommandDialogOpen: Boolean = false,
     val error: String? = null,
     val recentlyDeletedTask: Task? = null,
     val showFilterSheet: Boolean = false
@@ -32,8 +34,13 @@ sealed class TaskListEvent {
     data class SortBy(val sortOrder: SortOrder) : TaskListEvent()
     data class ToggleCompletion(val taskId: String) : TaskListEvent()
     data class DeleteTask(val task: Task) : TaskListEvent()
+    data class ToggleSubTask(val taskId: String, val subTaskId: String) : TaskListEvent()
     data object UndoDelete : TaskListEvent()
+    data object ClearDeletedTask : TaskListEvent() // New event to clear state
     data object ClearError : TaskListEvent()
     data object ToggleFilterSheet : TaskListEvent()
     data object RefreshTasks : TaskListEvent()
+    data object SmartPrioritize : TaskListEvent()
+    data object ToggleAICommandDialog : TaskListEvent()
+    data class ExecuteAICommand(val prompt: String) : TaskListEvent()
 }

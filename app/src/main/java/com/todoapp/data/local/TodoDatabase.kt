@@ -13,7 +13,7 @@ import com.todoapp.data.local.entity.TaskEntity
  */
 @Database(
     entities = [TaskEntity::class],
-    version = 1,
+    version = 7,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

@@ -16,25 +16,31 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.todoapp.MainActivity
 import com.todoapp.R
+import com.todoapp.domain.repository.TaskRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.firstOrNull
 
-/**
- * WorkManager worker for task reminder notifications.
- * Scheduled when a task has a due date/time set.
- */
 @HiltWorker
 class ReminderWorker @AssistedInject constructor(
     @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters
+    @Assisted workerParams: WorkerParameters,
+    private val repository: TaskRepository
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        val taskTitle = inputData.getString(KEY_TASK_TITLE) ?: return Result.failure()
         val taskId = inputData.getString(KEY_TASK_ID) ?: return Result.failure()
+        
+        // Fetch the latest task state from the database
+        val task = repository.getTaskById(taskId).firstOrNull()
+        
+        // Only show notification if task exists, is not completed, and reminder is still enabled
+        if (task == null || task.isCompleted || !task.isReminderEnabled) {
+            return Result.success()
+        }
 
         createNotificationChannel()
-        showNotification(taskTitle, taskId)
+        showNotification(task.title, task.id)
 
         return Result.success()
     }
@@ -51,12 +57,11 @@ class ReminderWorker @AssistedInject constructor(
             }
 
             val manager = applicationContext.getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            manager?.createNotificationChannel(channel)
         }
     }
 
     private fun showNotification(taskTitle: String, taskId: String) {
-        // Check notification permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     applicationContext,
@@ -80,16 +85,21 @@ class ReminderWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+            .setSmallIcon(R.drawable.remind) // Using your custom remind drawable
             .setContentTitle(applicationContext.getString(R.string.task_reminder_title))
             .setContentText(applicationContext.getString(R.string.task_reminder_body, taskTitle))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
 
-        NotificationManagerCompat.from(applicationContext)
-            .notify(taskId.hashCode(), notification)
+        try {
+            NotificationManagerCompat.from(applicationContext)
+                .notify(taskId.hashCode(), notification)
+        } catch (e: SecurityException) {
+            // Permission might have been revoked
+        }
     }
 
     companion object {

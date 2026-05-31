@@ -1,6 +1,8 @@
 package com.todoapp.presentation.theme
 
 import androidx.compose.ui.graphics.Color
+import com.todoapp.domain.model.TaskCategory
+import com.todoapp.domain.model.TaskPriority
 
 // ─── Primary Palette (Indigo-based) ──────────────────────────────
 val PrimaryLight = Color(0xFF4F46E5)
@@ -67,11 +69,28 @@ val PriorityMedium = Color(0xFFF59E0B)
 val PriorityLow = Color(0xFF22C55E)
 
 // ─── Category Colors ──────────────────────────────
-val CategoryWork = Color(0xFF6366F1)
-val CategoryPersonal = Color(0xFFEC4899)
-val CategoryStudy = Color(0xFF8B5CF6)
-val CategoryHealth = Color(0xFFEF4444)
-val CategoryShopping = Color(0xFF14B8A6)
-val CategoryFinance = Color(0xFFF59E0B)
-val CategoryHome = Color(0xFF3B82F6)
-val CategoryOther = Color(0xFF6B7280)
+val CategoryWork = Color(0xFF7B61FF)
+val CategoryPersonal = Color(0xFFBA68C8)
+val CategoryStudy = Color(0xFF64B5F6)
+val CategoryHealth = Color(0xFF81C784)
+val CategoryShopping = Color(0xFFFFD54F)
+val CategoryFinance = Color(0xFF4CAF50)
+val CategoryHome = Color(0xFFFF7043)
+val CategoryOther = Color(0xFF90A4AE)
+
+fun getCategoryColor(category: TaskCategory): Color = when (category) {
+    TaskCategory.WORK -> CategoryWork
+    TaskCategory.PERSONAL -> CategoryPersonal
+    TaskCategory.STUDY -> CategoryStudy
+    TaskCategory.HEALTH -> CategoryHealth
+    TaskCategory.SHOPPING -> CategoryShopping
+    TaskCategory.FINANCE -> CategoryFinance
+    TaskCategory.HOME -> CategoryHome
+    TaskCategory.OTHER -> CategoryOther
+}
+
+fun getPriorityColor(priority: TaskPriority): Color = when (priority) {
+    TaskPriority.HIGH -> PriorityHigh
+    TaskPriority.MEDIUM -> PriorityMedium
+    TaskPriority.LOW -> PriorityLow
+}
