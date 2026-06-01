@@ -28,3 +28,7 @@ An advanced, intelligent task management application built with **Kotlin** and *
 - A Google Gemini API Key
 - Firebase Project setup
 Developed with ❤️ by [Sharjeel Khan]
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/9eb40d9e-4887-41bc-bef9-c52815cc20ee" />
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/118ec207-cbd6-4d44-8719-df1af9ecb7f2" />
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/bb23c95a-5c16-4d03-92c4-c1c205a16194" />
