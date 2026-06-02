@@ -177,7 +177,7 @@ fun TaskListScreen(
                 border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f))
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -218,6 +218,7 @@ fun TaskListScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
+                    .wrapContentHeight() // Ensure it doesn't stretch
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -225,7 +226,7 @@ fun TaskListScreen(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(60.dp)
                             .background(brandColor.copy(alpha = 0.1f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
@@ -233,7 +234,7 @@ fun TaskListScreen(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
                             tint = brandColor,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                     
@@ -249,7 +250,7 @@ fun TaskListScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "Tell me what you'd like to do with your tasks.",
+                        text = "Manage your tasks using natural language.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = secondaryText,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -257,22 +258,26 @@ fun TaskListScreen(
                     
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Suggestion Chips
-                    Row(
+                    // Suggestion Chips with FlowRow
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.Center,
+                        maxItemsInEachRow = 2
                     ) {
                         suggestions.forEach { suggestion ->
                             SuggestionChip(
                                 onClick = { aiPrompt = suggestion },
                                 label = { 
                                     Text(
-                                        suggestion.take(15) + "...", 
-                                        style = MaterialTheme.typography.labelSmall
+                                        suggestion, 
+                                        style = MaterialTheme.typography.labelMedium
                                     ) 
                                 },
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.padding(4.dp),
+                                colors = SuggestionChipDefaults.suggestionChipColors(
+                                    labelColor = brandColor
+                                )
                             )
                         }
                     }
@@ -283,9 +288,10 @@ fun TaskListScreen(
                         value = aiPrompt,
                         onValueChange = { aiPrompt = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Type here...") },
+                        placeholder = { Text("How can I help?") },
                         shape = RoundedCornerShape(20.dp),
                         maxLines = 4,
+                        minLines = 2, // Make it look more like an input box
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = brandColor,
                             unfocusedBorderColor = secondaryText.copy(alpha = 0.3f),
@@ -328,12 +334,18 @@ fun TaskListScreen(
                         }
                     }
                     
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     
+                    HorizontalDivider(color = secondaryText.copy(alpha = 0.1f))
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     TextButton(
                         onClick = { onEvent(TaskListEvent.SmartPrioritize) }
                     ) {
-                        Text("✨ Auto-Prioritize All Tasks", color = brandColor, fontWeight = FontWeight.SemiBold)
+                        Icon(painterResource(R.drawable.star), null, tint = brandColor, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Auto-Prioritize My List", color = brandColor, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
