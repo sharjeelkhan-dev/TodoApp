@@ -49,7 +49,6 @@ class AIRepositoryImpl @Inject constructor(
             val responseText = response.text ?: return@withContext Result.failure(Exception("Empty AI response"))
             Log.d("AIRepository", "AI Response received: $responseText")
             
-            // Clean up response if it contains markdown code blocks
             val jsonString = responseText.replace("```json", "").replace("```", "").trim()
             
             val jsonObject = JSONObject(jsonString)

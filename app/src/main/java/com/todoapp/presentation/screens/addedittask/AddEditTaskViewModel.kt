@@ -23,11 +23,6 @@ import java.util.Date
 import java.util.UUID
 import javax.inject.Inject
 
-/**
- * ViewModel for the Add/Edit Task screen.
- * Loads existing task data if editing, validates and saves tasks.
- * Now includes ReminderManager to schedule notifications.
- */
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -171,7 +166,6 @@ class AddEditTaskViewModel @Inject constructor(
 
             result.fold(
                 onSuccess = {
-                    // Schedule reminder after successful save
                     reminderManager.scheduleReminder(task)
                     _state.update { it.copy(isLoading = false, isSaved = true) }
                 },

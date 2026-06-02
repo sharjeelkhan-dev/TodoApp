@@ -92,10 +92,8 @@ fun TaskListScreen(
         }
     }
 
-    // search field when search mode is activated
     LaunchedEffect(state.isSearchActive) {
         if (state.isSearchActive) {
-            // Small delay to ensure dialog is composed before requesting focus
             kotlinx.coroutines.delay(100)
             searchFocusRequester.requestFocus()
         }
@@ -112,7 +110,6 @@ fun TaskListScreen(
         )
     }
 
-    // --- Search Pop-up Dialog ---
     if (state.isSearchActive) {
         Dialog(
             onDismissRequest = { onEvent(TaskListEvent.ToggleSearch) },

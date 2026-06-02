@@ -9,11 +9,6 @@ import com.todoapp.data.remote.FirestoreDataSource
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
-/**
- * WorkManager worker for background cloud sync.
- * Runs periodically to ensure local changes are pushed to Firestore
- * and remote changes are pulled to Room.
- */
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
     @Assisted context: Context,
@@ -24,7 +19,6 @@ class SyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            // Upload pending tasks
             val pendingUploads = taskDao.getPendingUploadTasks()
             for (task in pendingUploads) {
                 if (task.userId.isNotBlank()) {
@@ -33,7 +27,6 @@ class SyncWorker @AssistedInject constructor(
                 }
             }
 
-            // Delete pending deletions from cloud
             val pendingDeletes = taskDao.getPendingDeleteTasks()
             for (task in pendingDeletes) {
                 if (task.userId.isNotBlank()) {

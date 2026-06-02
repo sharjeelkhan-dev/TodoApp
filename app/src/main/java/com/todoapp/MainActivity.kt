@@ -28,9 +28,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-/**
- * Main entry point for the TodoApp.
- */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -48,13 +45,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Schedule periodic background sync
         scheduleSyncWorker()
-
-        // Request notification permission for reminders (Android 13+)
         askNotificationPermission()
 
-        // Log app open event
         analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, null)
 
         setContent {
@@ -82,9 +75,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * Schedule a periodic sync worker.
-     */
     @RequiresApi(Build.VERSION_CODES.GINGERBREAD)
     private fun scheduleSyncWorker() {
         val constraints = Constraints.Builder()

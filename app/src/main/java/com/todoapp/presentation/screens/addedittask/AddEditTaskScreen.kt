@@ -69,10 +69,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.tooling.preview.Preview
-/**
- * Screen for adding a new task or editing an existing one.
- * Robust design with fixed rendering logic and zero shadows in light mode.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
@@ -115,7 +111,6 @@ fun AddEditTaskScreen(
         ) {
             Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding() + 16.dp))
 
-            // ─── Header ──────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -144,11 +139,9 @@ fun AddEditTaskScreen(
                 )
             }
 
-            // ─── Title Section ──────────────────
             Column {
                 Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = cardColor, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
                     Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-                        // Left accent strip
                         Box(
                             modifier = Modifier
                                 .width(7.dp)
@@ -177,7 +170,6 @@ fun AddEditTaskScreen(
                     fontSize = 11.sp)
             }
 
-            // ─── Description Section ──────────────────
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = cardColor, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
                 Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -204,7 +196,6 @@ fun AddEditTaskScreen(
             HorizontalDivider(color = dividerColor.copy(alpha = 0.5f),
                 thickness = 1.dp)
 
-            // ─── Category Section ──────────────────
             Text("CATEGORY", color = secondaryText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold)
@@ -240,7 +231,6 @@ fun AddEditTaskScreen(
                 }
             }
 
-            // ─── Priority Section ──────────────────
             Text("PRIORITY", color = secondaryText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold)
@@ -259,14 +249,12 @@ fun AddEditTaskScreen(
                 }
             }
 
-            // ─── Due Date & Time Section ──────────────────
             Text("DUE DATE & TIME", color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DateTimeCard(painter = painterResource(id = R.drawable.date_line), label = "DATE", value = state.dueDate?.let { dateFormat.format(it) } ?: "Set date", cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1.2f), onClick = { onEvent(AddEditTaskEvent.ToggleDatePicker) })
                 DateTimeCard(painter = painterResource(id = R.drawable.time_03), label = "TIME", value = state.dueTime ?: "Set time", cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1f), onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) })
             }
 
-            // ─── Reminder Card ──────────────────
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
                 Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(if (isDarkMode) Color(0xFF3B2A1A) else Color(0xFFFFF7ED)), contentAlignment = Alignment.Center) {
@@ -290,7 +278,6 @@ fun AddEditTaskScreen(
                 }
             }
 
-            // ─── Sub-tasks Section ──────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
