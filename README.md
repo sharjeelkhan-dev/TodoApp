@@ -29,6 +29,6 @@ An advanced, intelligent task management application built with **Kotlin** and *
 - Firebase Project setup
 Developed with ❤️ by [Sharjeel Khan]
 
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/9eb40d9e-4887-41bc-bef9-c52815cc20ee" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/118ec207-cbd6-4d44-8719-df1af9ecb7f2" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/bb23c95a-5c16-4d03-92c4-c1c205a16194" />
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/05d5b12a-fd24-4880-b114-bcf1e206f6ed" />
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/062c08fe-366f-4166-9853-433f17435fed" />
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/88ae5eb6-cb5e-496c-a136-d23e2820564c" />
