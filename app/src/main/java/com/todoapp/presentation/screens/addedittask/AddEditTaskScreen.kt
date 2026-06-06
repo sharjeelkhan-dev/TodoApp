@@ -1,4 +1,5 @@
 package com.todoapp.presentation.screens.addedittask
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -24,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Button
@@ -47,6 +47,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,7 +78,7 @@ fun AddEditTaskScreen(
     onEvent: (AddEditTaskEvent) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = state.dueDate?.time
     )
@@ -427,15 +428,8 @@ fun AddEditTaskScreen(
     if (state.showTimePicker) {
         androidx.compose.material3.AlertDialog(onDismissRequest =
             { onEvent(AddEditTaskEvent.ToggleTimePicker) },
-            confirmButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.DueTimeChanged(String.format(Locale.getDefault(), "%02d:%02d", timePickerState.hour, timePickerState.minute))) }) { Text("OK") } }, dismissButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) }) { Text("Cancel") } }, text = { TimePicker(state = timePickerState) })
+            confirmButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.DueTimeChanged(String.format(java.util.Locale.getDefault(), "%02d:%02d", timePickerState.hour, timePickerState.minute))) }) { Text("OK") } }, dismissButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) }) { Text("Cancel") } }, text = { TimePicker(state = timePickerState) })
     }
-}
-
-@Composable
-private fun cardBgIfTasksExist(state: AddEditTaskState,
-                               isDarkMode: Boolean,
-                               cardColor: Color): Color {
-    return cardColor
 }
 
 @Composable
