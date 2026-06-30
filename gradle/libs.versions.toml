@@ -58,10 +58,6 @@ credentialManager = "1.6.0"
 
 googleIdIdentity = "1.2.0"
 
-kotlinSerialization = "2.3.21" # Matching the main kotlin version
-
-
-
 [libraries]
 
 # AndroidX Core
@@ -71,7 +67,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 
 androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
-
 
 
 # Compose BOM
@@ -91,7 +86,7 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3", 
 compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 compose-animation = { group = "androidx.compose.animation", name = "animation" }
-compose-googlefonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version = "1.11.3" }
+
 
 
 

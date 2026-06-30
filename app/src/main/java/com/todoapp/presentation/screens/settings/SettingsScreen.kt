@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material3.AlertDialog
@@ -279,7 +278,7 @@ fun SettingsScreen(
                 SettingsSectionHeader(stringResource(R.string.account), secondaryText)
                 SettingsGroupCard(cardColor, dividerColor) {
                     SettingsClickItem(
-                        icon = Icons.AutoMirrored.Filled.Logout,
+                        painter = painterResource(id = R.drawable.logout_icon),
                         title = stringResource(R.string.sign_out),
                         subtitle = stringResource(R.string.sign_out_subtitle),
                         isLoading = false,
@@ -409,7 +408,8 @@ fun SettingsClickItem(
                     tint = iconTintColor,
                     modifier = Modifier.size(20.dp))
             } else if (painter != null) {
-                Icon(painter = painter, contentDescription = null, tint = iconTintColor, modifier = Modifier.size(20.dp))
+                Icon(painter = painter, contentDescription = null,
+                    tint = iconTintColor, modifier = Modifier.size(20.dp))
             }
         }
         

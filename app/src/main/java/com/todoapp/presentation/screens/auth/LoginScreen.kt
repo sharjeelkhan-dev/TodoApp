@@ -88,25 +88,23 @@ fun LoginScreen(
                     fontSize = 28.sp
                 )
             )
-
             Text(
                 text = if (state.isSignUpMode) stringResource(R.string.join_us) else stringResource(R.string.login_desc),
                 color = secondaryText,
+                modifier = Modifier.offset(y = (-10).dp),
                 fontSize = 14.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             // --- Form Section ---
             AnimatedVisibility(visible = state.isSignUpMode) {
                 OutlinedTextField(
                     value = state.displayName,
                     onValueChange = { onEvent(LoginEvent.DisplayNameChanged(it)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.full_name)) },
                     placeholder = { Text(stringResource(R.string.john_doe)) },
-                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = brandColor) },
+                    leadingIcon = { Icon(Icons.Default.Person,
+                        contentDescription = null, tint = brandColor) },
                     shape = RoundedCornerShape(16.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -117,7 +115,6 @@ fun LoginScreen(
                     )
                 )
             }
-
             OutlinedTextField(
                 value = state.email,
                 onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
@@ -140,7 +137,8 @@ fun LoginScreen(
                 onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.password)) },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = brandColor) },
+                leadingIcon = { Icon(Icons.Default.Lock,
+                    contentDescription = null, tint = brandColor) },
                 trailingIcon = {
                     IconButton(onClick = { onEvent(LoginEvent.TogglePasswordVisibility) }) {
                         Icon(
@@ -161,14 +159,14 @@ fun LoginScreen(
                     cursorColor = brandColor
                 )
             )
-
             AnimatedVisibility(visible = state.isSignUpMode) {
                 OutlinedTextField(
                     value = state.confirmPassword,
                     onValueChange = { onEvent(LoginEvent.ConfirmPasswordChanged(it)) },
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.confirm_password)) },
-                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = brandColor) },
+                    leadingIcon = { Icon(Icons.Default.Lock,
+                        contentDescription = null, tint = brandColor) },
                     visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     shape = RoundedCornerShape(16.dp),
@@ -190,12 +188,10 @@ fun LoginScreen(
                     modifier = Modifier.align(Alignment.Start)
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // --- Action Buttons ---
             Button(
-                onClick = { if (state.isSignUpMode) onEvent(LoginEvent.SignUp) else onEvent(LoginEvent.SignIn) },
+                onClick = { if (state.isSignUpMode) onEvent(LoginEvent.SignUp)
+                else onEvent(LoginEvent.SignIn) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -211,18 +207,20 @@ fun LoginScreen(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().offset(y = (-20).dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (state.isSignUpMode) stringResource(R.string.already_have_account) else stringResource(R.string.dont_have_account),
+                    if (state.isSignUpMode) stringResource(R.string.already_have_account)
+                    else stringResource(R.string.dont_have_account),
                     color = secondaryText,
                     fontSize = 14.sp
                 )
                 TextButton(onClick = { onEvent(LoginEvent.ToggleMode) }) {
                     Text(
-                        if (state.isSignUpMode) stringResource(R.string.sign_in) else stringResource(R.string.sign_up),
+                        if (state.isSignUpMode) stringResource(R.string.sign_in)
+                        else stringResource(R.string.sign_up),
                         color = brandColor,
                         fontWeight = FontWeight.Bold
                     )

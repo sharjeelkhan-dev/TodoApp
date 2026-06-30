@@ -462,7 +462,6 @@ fun TaskListScreen(
                     )
                 }
             }
-
             if (completedTasks.isNotEmpty()) {
                 item { Spacer(modifier = Modifier.height(12.dp)) }
                 item { SectionHeader(stringResource(R.string.completed), secondaryText) }
