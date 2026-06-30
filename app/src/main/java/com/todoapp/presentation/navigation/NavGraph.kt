@@ -3,7 +3,7 @@ package com.todoapp.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,7 +27,7 @@ import com.todoapp.presentation.screens.settings.SettingsViewModel
 fun NavGraph(
     navController: NavHostController,
     isDarkMode: Boolean,
-    onToggleDarkMode: (Boolean) -> Unit
+    onToggleDarkMode: (Boolean) -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -44,13 +44,12 @@ fun NavGraph(
                 isDarkMode = isDarkMode,
                 tasksCount = tasksCount,
                 doneCount = doneCount,
-                onNavigateToHome = {
-                    val destination = if (isAuthenticated) Screen.Main.route else Screen.Login.route
-                    navController.navigate(destination) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
-                    }
+            ) {
+                val destination = if (isAuthenticated) Screen.Main.route else Screen.Login.route
+                navController.navigate(destination) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
                 }
-            )
+            }
         }
 
         // ─── Login Screen ──────────────────────────────

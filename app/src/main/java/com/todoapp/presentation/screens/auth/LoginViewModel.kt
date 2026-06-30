@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
@@ -59,7 +59,7 @@ class LoginViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _state.update { it.copy(isLoading = false, error = error.message) }
-                }
+                },
             )
         }
     }
@@ -76,7 +76,7 @@ class LoginViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _state.update { it.copy(isLoading = false, error = error.message) }
-                }
+                },
             )
         }
     }

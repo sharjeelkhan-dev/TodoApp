@@ -1,6 +1,8 @@
 package com.todoapp.data.repository
-
-import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.GenerativeModel as FirebaseGenerativeModel
+import com.google.ai.client.generativeai.GenerativeModel as GoogleGenerativeModel
+import com.google.ai.client.generativeai.type.generationConfig
+import com.todoapp.data.local.PreferenceManager
 import com.todoapp.domain.model.AIAction
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
@@ -8,6 +10,7 @@ import com.todoapp.domain.model.TaskPriority
 import com.todoapp.domain.repository.AIRepository
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -16,8 +19,53 @@ import java.util.Locale
 import javax.inject.Inject
 
 class AIRepositoryImpl @Inject constructor(
-    private val generativeModel: GenerativeModel,
+    private val firebaseModel: FirebaseGenerativeModel,
+    private val preferenceManager: PreferenceManager
 ) : AIRepository {
+
+    private suspend fun generateContent(prompt: String): String? {
+        val customKey = preferenceManager.apiKey.first()?.trim()
+        return if (customKey.isNullOrBlank()) {
+            Log.d("AIRepository", "Using default Firebase-managed Gemini model")
+            try {
+                withContext(Dispatchers.IO) {
+                    firebaseModel.generateContent(prompt).text
+                }
+            } catch (e: Exception) {
+                Log.e("AIRepository", "Error with Firebase-managed model", e)
+                val errorMessage = when {
+                    e.message?.contains("403") == true -> "Firebase AI: Access Forbidden (403). Check App Check or API restrictions."
+                    e.message?.contains("429") == true -> "Firebase AI: Quota exceeded (429)."
+                    else -> "Firebase AI error: ${e.message}"
+                }
+                throw Exception(errorMessage)
+            }
+        } else {
+            Log.d("AIRepository", "Using custom API key (length: ${customKey.length}) with Google AI SDK")
+            try {
+                withContext(Dispatchers.IO) {
+                    val config = generationConfig {
+                        responseMimeType = "application/json"
+                    }
+                    val googleModel = GoogleGenerativeModel(
+                        modelName = "gemini-3.5-flash", // Using the latest Gemini 3.5 model
+                        apiKey = customKey,
+                        generationConfig = config
+                    )
+                    googleModel.generateContent(prompt).text
+                }
+            } catch (e: Exception) {
+                Log.e("AIRepository", "Error with custom API key model", e)
+                val errorMessage = when {
+                    e.message?.contains("403") == true -> "Custom Key: Access Forbidden (403). Ensure 'Generative Language API' is enabled in Google Cloud Console."
+                    e.message?.contains("API_KEY_INVALID") == true -> "Custom Key: Invalid API Key. Please check your key in Settings."
+                    e.message?.contains("429") == true -> "Custom Key: Quota exceeded (429)."
+                    else -> "Custom Key error: ${e.message}"
+                }
+                throw Exception(errorMessage)
+            }
+        }
+    }
 
     override suspend fun getPrioritizationScores(tasks: List<Task>): Result<Map<String, Int>> = withContext(Dispatchers.IO) {
         try {
@@ -45,8 +93,7 @@ class AIRepositoryImpl @Inject constructor(
             """.trimIndent()
 
             Log.d("AIRepository", "Sending prompt to AI")
-            val response = generativeModel.generateContent(prompt)
-            val responseText = response.text ?: return@withContext Result.failure(Exception("Empty AI response"))
+            val responseText = generateContent(prompt) ?: return@withContext Result.failure(Exception("Empty AI response"))
             Log.d("AIRepository", "AI Response received: $responseText")
             
             val jsonString = responseText.replace("```json", "").replace("```", "").trim()
@@ -102,8 +149,7 @@ class AIRepositoryImpl @Inject constructor(
             """.trimIndent()
 
             Log.d("AIRepository", "Sending command prompt to AI")
-            val response = generativeModel.generateContent(systemPrompt)
-            val responseText = response.text ?: return@withContext Result.failure(Exception("Empty AI response"))
+            val responseText = generateContent(systemPrompt) ?: return@withContext Result.failure(Exception("Empty AI response"))
             Log.d("AIRepository", "AI Response received: $responseText")
             
             val jsonString = responseText.replace("```json", "").replace("```", "").trim()

@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,12 +34,11 @@ class MainActivity : ComponentActivity() {
     lateinit var analytics: FirebaseAnalytics
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
+        ActivityResultContracts.RequestPermission(),
+    ) { _ ->
         // Handle permission result if needed
     }
 
-    @RequiresApi(Build.VERSION_CODES.GINGERBREAD)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -59,8 +57,7 @@ class MainActivity : ComponentActivity() {
                 NavGraph(
                     navController = navController,
                     isDarkMode = isDarkMode,
-                    onToggleDarkMode = { isDarkMode = it }
-                )
+                ) { isDarkMode = it }
             }
         }
     }
@@ -75,7 +72,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.GINGERBREAD)
     private fun scheduleSyncWorker() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)

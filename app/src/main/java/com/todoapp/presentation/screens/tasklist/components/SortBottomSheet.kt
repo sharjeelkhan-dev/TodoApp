@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.domain.model.SortOrder
 
@@ -59,7 +60,7 @@ fun SortBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Sort By",
+                    text = stringResource(R.string.sort_by),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1A1A1A)
@@ -70,7 +71,7 @@ fun SortBottomSheet(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
-                        text = "Reset",
+                        text = stringResource(R.string.reset),
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                         color = Color(0xFF7B61FF),
                         fontWeight = FontWeight.Medium,
@@ -112,7 +113,7 @@ fun SortBottomSheet(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -139,7 +140,7 @@ fun SortBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Apply Sort",
+                            text = stringResource(R.string.apply_sort),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -200,7 +201,7 @@ fun SortOptionItem(
                     color = contentColor
                 )
                 Text(
-                    text = getSortDescription(order),
+                    text = stringResource(getSortDescriptionRes(order)),
                     fontSize = 12.sp,
                     color = subTextColor
                 )
@@ -250,15 +251,15 @@ private fun getSortIconInfo(order: SortOrder): SortIconInfo {
     }
 }
 
-private fun getSortDescription(order: SortOrder): String {
+private fun getSortDescriptionRes(order: SortOrder): Int {
     return when (order) {
-        SortOrder.DATE_CREATED_ASC -> "Created date ascending"
-        SortOrder.DATE_CREATED_DESC -> "Created date descending"
-        SortOrder.DUE_DATE_ASC -> "Urgent tasks first"
-        SortOrder.DUE_DATE_DESC -> "Latest deadline first"
-        SortOrder.PRIORITY_HIGH_FIRST -> "Most critical tasks first"
-        SortOrder.PRIORITY_LOW_FIRST -> "Low priority tasks first"
-        SortOrder.ALPHABETICAL -> "Alphabetical order"
-        SortOrder.AI_SMART -> "AI-recommended task order"
+        SortOrder.DATE_CREATED_ASC -> R.string.created_asc
+        SortOrder.DATE_CREATED_DESC -> R.string.created_desc
+        SortOrder.DUE_DATE_ASC -> R.string.urgent_first
+        SortOrder.DUE_DATE_DESC -> R.string.latest_first
+        SortOrder.PRIORITY_HIGH_FIRST -> R.string.critical_first
+        SortOrder.PRIORITY_LOW_FIRST -> R.string.low_priority_first
+        SortOrder.ALPHABETICAL -> R.string.alphabetical
+        SortOrder.AI_SMART -> R.string.ai_smart_order
     }
 }

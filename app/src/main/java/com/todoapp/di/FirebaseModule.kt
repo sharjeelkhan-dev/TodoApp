@@ -8,6 +8,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.type.GenerativeBackend
+import com.google.firebase.ai.type.generationConfig
 import com.google.firebase.analytics.analytics
 import dagger.Module
 import dagger.Provides
@@ -33,9 +34,14 @@ object FirebaseModule {
     @Provides
     @Singleton
     fun provideFirebaseCrashlytics(): FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
-    @Provides
-    @Singleton
-    fun provideGenerativeModel(): GenerativeModel = Firebase.ai(
-        backend = GenerativeBackend.googleAI()
-    ).generativeModel("gemini-2.0-flash")
+      @Provides
+      @Singleton
+      fun provideGenerativeModel(): GenerativeModel = Firebase.ai(
+          backend = GenerativeBackend.googleAI()
+      ).generativeModel(
+          modelName = "gemini-3.5-flash",
+          generationConfig = generationConfig {
+              responseMimeType = "application/json"
+          }
+      )
 }

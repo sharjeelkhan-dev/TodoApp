@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.presentation.theme.TodoAppTheme
 import kotlinx.coroutines.delay
@@ -195,14 +196,14 @@ fun SplashScreenContent(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         modifier = Modifier.offset(y = 60.dp),
-                        text = "My",
+                        text = stringResource(R.string.my),
                         fontSize = 42.sp,
                         fontWeight = FontWeight.Normal,
                         color = textColor
                     )
                     Text(
                         modifier = Modifier.offset(y = 60.dp),
-                        text = "Tasks",
+                        text = stringResource(R.string.tasks),
                         fontSize = 42.sp,
                         fontWeight = FontWeight.Bold,
                         color = primaryColor
@@ -213,7 +214,7 @@ fun SplashScreenContent(
 
                 // Subtitle
                 Text(modifier = Modifier.offset(y = 50.dp),
-                    text = "Plan it. Do it. Own it.",
+                    text = stringResource(R.string.splash_subtitle),
                     fontSize = 16.sp,
                     color = subTextColor,
                     fontWeight = FontWeight.Medium
@@ -240,7 +241,7 @@ fun SplashScreenContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(modifier = Modifier.offset(y = (-10).dp),
-                    text = "Almost ready...",
+                    text = stringResource(R.string.almost_ready),
                     fontSize = 14.sp,
                     color = subTextColor
                 )
@@ -255,8 +256,8 @@ fun SplashScreenContent(
                     .alpha(logoAlpha),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                StatCard(tasksCount.toString(), "TASKS", Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
-                StatCard(doneCount.toString(), "DONE", Color(0xFF009688), isDarkMode, Modifier.weight(1f))
+                StatCard(tasksCount.toString(), stringResource(R.string.tasks_upper), Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
+                StatCard(doneCount.toString(), stringResource(R.string.done_upper), Color(0xFF009688), isDarkMode, Modifier.weight(1f))
             }
         }
     }

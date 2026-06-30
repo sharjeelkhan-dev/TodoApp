@@ -1,7 +1,9 @@
 package com.todoapp.presentation.screens.tasklist.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,27 +13,48 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Notes
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,7 +66,20 @@ import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
-import com.todoapp.presentation.theme.*
+import com.todoapp.presentation.theme.CategoryFinance
+import com.todoapp.presentation.theme.CategoryHealth
+import com.todoapp.presentation.theme.CategoryHome
+import com.todoapp.presentation.theme.CategoryOther
+import com.todoapp.presentation.theme.CategoryPersonal
+import com.todoapp.presentation.theme.CategoryShopping
+import com.todoapp.presentation.theme.CategoryStudy
+import com.todoapp.presentation.theme.CategoryWork
+import com.todoapp.presentation.theme.PriorityHigh
+import com.todoapp.presentation.theme.PriorityLow
+import com.todoapp.presentation.theme.PriorityMedium
+import com.todoapp.presentation.theme.TodoAppTheme
+import com.todoapp.presentation.theme.getCategoryColor
+import com.todoapp.presentation.theme.getPriorityColor
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -68,31 +104,14 @@ fun TaskCard(
         label = "completionProgress"
     )
 
-    val cardBgAlpha = if (isDarkMode) {
-        leap(0.15f, 0.05f, completionProgress)
-    } else {
-        leap(0.08f, 0.04f, completionProgress)
-    }
-    categoryColor.copy(alpha = cardBgAlpha)
-    
+    val cardBg = if (isDarkMode) Color(0xFF231F26) else Color(0xFFF5F5F7)
     val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
     val secondaryText = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)
+
     val animatedContentColor by animateColorAsState(
         targetValue = if (task.isCompleted) secondaryText else primaryText,
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "contentColor"
-    )
-
-    val accentColor by animateColorAsState(
-        targetValue = if (task.isCompleted) Color(0xFF22C55E) else categoryColor,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "accentColor"
-    )
-
-    val checkBgColor by animateColorAsState(
-        targetValue = if (task.isCompleted) Color(0xFF22C55E) else Color.Transparent,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
-        label = "checkBg"
     )
 
     val checkBorderColor by animateColorAsState(
@@ -103,177 +122,205 @@ fun TaskCard(
         label = "checkBorder"
     )
 
-    val iconScale by animateFloatAsState(
-        targetValue = if (task.isCompleted) 1f else 0f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-        label = "iconScale"
-    )
-
-    val circleScale by animateFloatAsState(
-        targetValue = if (task.isCompleted) 1.1f else 1f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium),
-        label = "circleScale"
-    )
-
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-    val creationTime = timeFormat.format(task.createdAt)
+    val dueTimeText = remember(task.dueTime) {
+        if (task.dueTime != null) {
+            try {
+                val inputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val date = inputFormat.parse(task.dueTime)
+                if (date != null) {
+                    val start = timeFormat.format(date)
+                    // Mock a range for design purposes if it's just a single time
+                    val calendar = java.util.Calendar.getInstance()
+                    calendar.time = date
+                    calendar.add(java.util.Calendar.MINUTE, 30)
+                    val end = timeFormat.format(calendar.time)
+                    "$start - $end"
+                } else task.dueTime
+            } catch (e: Exception) {
+                task.dueTime
+            }
+        } else {
+            timeFormat.format(task.createdAt)
+        }
+    }
 
     var showMenu by remember { mutableStateOf(false) }
-    var actualTextWidth by remember { mutableFloatStateOf(0f) }
     var isExpanded by remember { mutableStateOf(initiallyExpanded) }
+    
     val arrowRotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "arrowRotation"
     )
 
-    Box(modifier = modifier) {
+    val cardAlpha by animateFloatAsState(
+        targetValue = if (task.isCompleted) 0.5f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "cardAlpha"
+    )
+
+    Box(modifier = modifier.graphicsLayer(alpha = cardAlpha)) {
         Column {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .combinedClickable(
-                        onClick = { /* Using menu instead */ },
-                        onLongClick = { showMenu = true }
-                    ),
-                shape = RoundedCornerShape(12.dp),
-                color = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
+                    .border(
+                        width = 1.dp,
+                        color = if (isDarkMode) Color.White.copy(alpha = 0.03f)
+                        else Color.Black.copy(alpha = 0.05f),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .clip(RoundedCornerShape(20.dp)),
+                shape = RoundedCornerShape(20.dp),
+                color = cardBg,
                 shadowElevation = if (isDarkMode) 0.dp else 2.dp
             ) {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(16.dp)
                 ) {
-                    // Left accent strip
-                    Box(
-                        modifier = Modifier
-                            .width(6.dp)
-                            .fillMaxHeight()
-                            .background(accentColor)
-                    )
+                    // Top Row: Category and Priority Bars
                     Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Check circle with bouncy interaction
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Category Bar
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(categoryColor.copy(alpha = 0.8f))
+                            )
+                            
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            // Priority Bar (Same style as category)
+                            Box(
+                                modifier = Modifier
+                                    .width(40.dp)
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(getPriorityColor(task.priority).copy(alpha = 0.8f))
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { showMenu = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreHoriz,
+                                contentDescription = "Menu",
+                                tint = secondaryText.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Middle Row: Task Title & Description
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = task.title,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = animatedContentColor
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null
+                        )
+
+                        if (!task.description.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = task.description,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = secondaryText.copy(alpha = 0.8f),
+                                    fontSize = 14.sp,
+                                    lineHeight = 20.sp
+                                ),
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Bottom Row: Time and Checkbox
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Notes,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = secondaryText.copy(alpha = 0.7f)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = dueTimeText ?: "",
+                                fontSize = 13.sp,
+                                color = secondaryText.copy(alpha = 0.8f),
+                                fontWeight = FontWeight.Medium
+                            )
+                            if (task.subTasks.isNotEmpty()) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                IconButton(
+                                    onClick = { isExpanded = !isExpanded },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.chevron_direction_bottom_round_outline_icon),
+                                        contentDescription = "Show sub-tasks",
+                                        tint = secondaryText.copy(alpha = 0.7f),
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .graphicsLayer(rotationZ = arrowRotation)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Checkbox (Rounded Square)
                         Box(
                             modifier = Modifier
-                                .size(24.dp)
-                                .graphicsLayer(scaleX = circleScale, scaleY = circleScale)
-                                .clip(CircleShape)
-                                .background(checkBgColor)
+                                .size(26.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (task.isCompleted) Color(0xFF22C55E)
+                                    else Color.Transparent
+                                )
                                 .border(
                                     width = 2.dp,
-                                    color = checkBorderColor,
-                                    shape = CircleShape
+                                    color = if (task.isCompleted) Color(0xFF22C55E) else checkBorderColor,
+                                    shape = RoundedCornerShape(8.dp)
                                 )
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
-                                ) { 
-                                    onToggleCompletion() 
+                                ) {
+                                    onToggleCompletion()
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Done",
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .graphicsLayer(scaleX = iconScale, scaleY = iconScale),
-                                tint = Color.White
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    modifier = Modifier.weight(1f),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = task.title,
-                                        modifier = Modifier
-                                            .weight(1f, fill = false)
-                                            .drawWithContent {
-                                                drawContent()
-                                                // Animated strikethrough limited to actual visible text width
-                                                if (completionProgress > 0f && actualTextWidth > 0f) {
-                                                    val y = size.height / 2f + 2.dp.toPx()
-                                                    drawLine(
-                                                        color = animatedContentColor.copy(alpha = 0.6f),
-                                                        start = Offset(0f, y),
-                                                        end = Offset(actualTextWidth * completionProgress, y),
-                                                        strokeWidth = 1.5.dp.toPx()
-                                                    )
-                                                }
-                                            },
-                                        onTextLayout = { textLayoutResult ->
-                                            // Get the right edge of the text on the first line to handle ellipsis correctly
-                                            actualTextWidth = if (textLayoutResult.lineCount > 0) {
-                                                textLayoutResult.getLineRight(0)
-                                            } else {
-                                                0f
-                                            }
-                                        },
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 15.sp,
-                                            color = animatedContentColor
-                                        ),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    
-                                    if (task.subTasks.isNotEmpty()) {
-                                        IconButton(
-                                            onClick = { isExpanded = !isExpanded },
-                                            modifier = Modifier.size(32.dp)
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.chevron_direction_bottom_round_outline_icon),
-                                                contentDescription = "Show sub-tasks",
-                                                tint = if (isDarkMode) Color.White else Color.Black,
-                                                modifier = Modifier
-                                                    .size(20.dp)
-                                                    .graphicsLayer(rotationZ = arrowRotation)
-                                            )
-                                        }
-                                    }
-                                }
-                                Text(
-                                    text = creationTime,
-                                    fontSize = 10.sp,
-                                    color = secondaryText.copy(alpha = 0.6f),
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.padding(start = 8.dp)
+                            if (task.isCompleted) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Done",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.White
                                 )
-                            }
-                            if (task.description.isNotEmpty()) {
-                                Text(
-                                    text = task.description,
-                                    fontSize = 12.sp,
-                                    color = secondaryText.copy(alpha = 1f - (completionProgress * 0.3f)),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                CategoryPill(task.category, completionProgress)
-                                PriorityPill(task.priority, completionProgress)
-                                task.aiPriorityScore?.let { score ->
-                                    AIPriorityBadge(score, completionProgress)
-                                }
                             }
                         }
                     }
@@ -288,7 +335,7 @@ fun TaskCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 18.dp) // Perfectly aligns with parent's check circle center
+                        .padding(start = 12.dp, end = 12.dp)
                 ) {
                     task.subTasks.forEachIndexed { index, subTask ->
                         Row(
@@ -297,7 +344,6 @@ fun TaskCard(
                                 .height(IntrinsicSize.Min),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            
                             // Custom Connector Line (L-shape)
                             Box(
                                 modifier = Modifier
@@ -305,102 +351,40 @@ fun TaskCard(
                                     .fillMaxHeight()
                             ) {
                                 Canvas(modifier = Modifier.fillMaxSize()) {
-                                    val strokeWidth = 2.dp.toPx()
-                                    val connectorColor = categoryColor.copy(alpha = 0.4f)
+                                    val strokeWidth = 1.5.dp.toPx()
+                                    val connectorColor = secondaryText.copy(alpha = 0.2f)
                                     val w = size.width
                                     val h = size.height
-                                    
-                                    // Vertical line from top to center
+                                    val centerX = w / 2
+
+                                    // Vertical line: from top to center (or bottom if not last)
                                     drawLine(
                                         color = connectorColor,
-                                        start = Offset(w / 2, 0f),
-                                        end = Offset(w / 2, if (index == task.subTasks.size - 1) h / 2 else h),
+                                        start = Offset(centerX, 0f),
+                                        end = Offset(centerX, if (index == task.subTasks.size - 1) h / 2 else h),
                                         strokeWidth = strokeWidth
                                     )
-                                    
+
                                     // Horizontal line to the right
                                     drawLine(
                                         color = connectorColor,
-                                        start = Offset(w / 2, h / 2),
+                                        start = Offset(centerX, h / 2),
                                         end = Offset(w, h / 2),
                                         strokeWidth = strokeWidth
                                     )
-
-                                    // Arrow head pointing to sub-task card
-                                    val arrowSize = 4.dp.toPx()
-                                    val path = Path().apply {
-                                        moveTo(w - arrowSize, h / 2 - arrowSize / 1.5f)
-                                        lineTo(w, h / 2)
-                                        lineTo(w - arrowSize, h / 2 + arrowSize / 1.5f)
-                                    }
-                                    drawPath(path, connectorColor, style = Stroke(strokeWidth, cap = StrokeCap.Round))
                                 }
                             }
 
-                            // Sub-task card (Flat, matching the parent's clean design)
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(vertical = 4.dp),
-                                shape = RoundedCornerShape(10.dp),
-                                color = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
-                                shadowElevation = 0.dp // Shadow removed as requested
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(IntrinsicSize.Min),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Sub-task Left accent strip
-                                    Box(
-                                        modifier = Modifier
-                                            .width(6.dp)
-                                            .fillMaxHeight()
-                                            .background(
-                                                if (subTask.isCompleted) Color(0xFF22C55E)
-                                                else categoryColor.copy(alpha = 0.7f)
-                                            )
-                                    )
-
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 8.dp, vertical = 6.dp), // Reduced padding
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        // Small check circle
-                                        Box(
-                                            modifier = Modifier
-                                                .size(20.dp)
-                                                .clip(CircleShape)
-                                                .background(if (subTask.isCompleted) Color(0xFF22C55E) else Color.Transparent)
-                                                .border(1.5.dp, if (subTask.isCompleted) Color(0xFF22C55E) else secondaryText.copy(alpha = 0.4f), CircleShape)
-                                                .clickable { onToggleSubTask(subTask.id) },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            if (subTask.isCompleted) {
-                                                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
-                                            }
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.width(8.dp)) // Reduced spacer
-
-                                        Text(
-                                            text = subTask.title,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = if (subTask.isCompleted) secondaryText.copy(alpha = 0.6f) else primaryText,
-                                            textDecoration = if (subTask.isCompleted) TextDecoration.LineThrough else null,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
+                            Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                                SubTaskItem(
+                                    subTask = subTask,
+                                    isDarkMode = isDarkMode,
+                                    cardBg = cardBg,
+                                    onToggle = { onToggleSubTask(subTask.id) }
+                                )
                             }
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
@@ -412,7 +396,7 @@ fun TaskCard(
                 Color(0xFF1E1E1E) else Color(0xFFFFFFFF))
         ) {
             DropdownMenuItem(
-                text = { Text("Edit Task") },
+                text = { Text(stringResource(R.string.edit_task)) },
                 onClick = {
                     showMenu = false
                     onClick()
@@ -426,7 +410,7 @@ fun TaskCard(
                 }
             )
             DropdownMenuItem(
-                text = { Text("Delete Task") },
+                text = { Text(stringResource(R.string.delete_task)) },
                 onClick = {
                     showMenu = false
                     onDelete()
@@ -444,12 +428,83 @@ fun TaskCard(
 }
 
 @Composable
+private fun SubTaskItem(
+    subTask: SubTask,
+    isDarkMode: Boolean,
+    cardBg: Color,
+    onToggle: () -> Unit
+) {
+    val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
+    val secondaryText = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)
+
+    val completionAlpha by animateFloatAsState(
+        targetValue = if (subTask.isCompleted) 0.5f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "subTaskAlpha"
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer(alpha = completionAlpha)
+            .clip(RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                color = if (isDarkMode) Color.White.copy(alpha = 0.03f)
+                else Color.Black.copy(alpha = 0.05f),
+                shape = RoundedCornerShape(12.dp))
+            .clickable { onToggle() },
+        color = cardBg,
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Checkbox for Sub-task
+            Box(
+                modifier = Modifier
+                    .size(20.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(if (subTask.isCompleted) Color(0xFF22C55E) else Color.Transparent)
+                    .border(
+                        1.5.dp,
+                        if (subTask.isCompleted) Color(0xFF22C55E) else secondaryText.copy(alpha = 0.4f),
+                        RoundedCornerShape(6.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                if (subTask.isCompleted) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(12.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = subTask.title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = if (subTask.isCompleted) secondaryText.copy(alpha = 0.6f) else primaryText,
+                textDecoration = if (subTask.isCompleted) TextDecoration.LineThrough else null,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
 private fun AIPriorityBadge(score: Int, completionProgress: Float) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(7.dp))
+            .clip(CircleShape)
             .background(Color(0xFF7B61FF).copy(alpha = leap(0.12f, 0.05f, completionProgress)))
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -474,7 +529,7 @@ private fun CategoryPill(category: TaskCategory, completionProgress: Float) {
     val color = getCategoryColor(category)
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(7.dp))
+            .clip(CircleShape)
             .background(color.copy(alpha = leap(0.12f, 0.05f, completionProgress)))
             .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {

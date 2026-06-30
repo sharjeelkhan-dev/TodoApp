@@ -1,5 +1,5 @@
 package com.todoapp.presentation.screens.addedittask
-import android.annotation.SuppressLint
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -7,10 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,21 +23,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -55,8 +51,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.todoapp.R
@@ -64,12 +62,12 @@ import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
 import com.todoapp.presentation.screens.tasklist.components.getPriorityColor
+import com.todoapp.presentation.theme.PoppinsFontFamily
 import com.todoapp.presentation.theme.TodoAppTheme
 import com.todoapp.presentation.theme.getCategoryColor
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
-import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
@@ -88,12 +86,20 @@ fun AddEditTaskScreen(
     )
 
     val categoryColor = getCategoryColor(state.category)
-    val bgColor = if (isDarkMode) Color(0xFF121212) else Color(0xFFFBFBFB)
-    val cardColor = if (isDarkMode) categoryColor.copy(alpha = 0.15f) else categoryColor.copy(alpha = 0.08f)
+    val bgColor = if (isDarkMode) Color(0xFF1C1B21) else Color(0xFFFBFBF9)
+    val cardColor = if (isDarkMode) Color(0xFF231F26) else Color(0xFFF5F5F7)
+    val cardBorderColor = if (isDarkMode) Color.White.copy(alpha = 0.03f) else Color.Black.copy(alpha = 0.05f)
     val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
-    val secondaryText = Color.Gray
+    val secondaryText = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)
     val brandColor = Color(0xFF7B61FF)
     val dividerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFEEEEEE)
+
+    val categoryRows = remember { 
+        listOf(
+            TaskCategory.entries.take(4),
+            TaskCategory.entries.drop(4)
+        )
+    }
 
     LaunchedEffect(state.isSaved) {
         if (state.isSaved) onNavigateBack()
@@ -130,7 +136,7 @@ fun AddEditTaskScreen(
                     }
                 }
                 Text(
-                    text = if (state.isEditing) "Edit Task" else "New Task",
+                    text = if (state.isEditing) stringResource(R.string.edit_task) else stringResource(R.string.new_task),
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = primaryText,
@@ -140,56 +146,107 @@ fun AddEditTaskScreen(
                 )
             }
 
+            // ─── Title Section ──────────────────
             Column {
-                Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = cardColor, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
-                    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .width(7.dp)
-                                .fillMaxHeight()
-                                .background(categoryColor)
-                        )
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    color = cardColor,
+                    border = BorderStroke(1.dp, cardBorderColor)
+                ) {
+                    Column {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("TITLE", color = brandColor, fontSize = 15.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                                Text(
+                                    stringResource(R.string.title_label), 
+                                    color = brandColor, 
+                                    fontSize = 14.sp, 
+                                    fontWeight = FontWeight.Bold, 
+                                    letterSpacing = 0.5.sp,
+                                    fontFamily = PoppinsFontFamily
+                                )
                                 Spacer(modifier = Modifier.weight(1f))
-                                (Icon(
-                                    painter = painterResource(id = R.drawable.comment_blog_icon), contentDescription = null, tint = secondaryText, modifier = Modifier.size(16.dp)))
+                                Icon(
+                                    painter = painterResource(id = R.drawable.comment_blog_icon), 
+                                    contentDescription = null, 
+                                    tint = secondaryText.copy(alpha = 0.5f), 
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
                             Spacer(modifier = Modifier.height(12.dp))
                             Box {
-                                if (state.title.isEmpty()) Text("What needs to be done?", color = secondaryText.copy(alpha = 0.5f), fontSize = 16.sp, fontWeight = FontWeight.Normal)
-                                BasicTextField(value = state.title, onValueChange = { if (it.length <= 60) onEvent(AddEditTaskEvent.TitleChanged(it)) }, modifier = Modifier.fillMaxWidth(), textStyle = TextStyle(color = primaryText, fontSize = 16.sp, fontWeight = FontWeight.Medium), singleLine = true, cursorBrush = SolidColor(brandColor))
+                                if (state.title.isEmpty()) {
+                                    Text(
+                                        stringResource(R.string.title_hint), 
+                                        color = secondaryText.copy(alpha = 0.4f), 
+                                        fontSize = 16.sp, 
+                                        fontWeight = FontWeight.Normal,
+                                        fontFamily = PoppinsFontFamily
+                                    )
+                                }
+                                BasicTextField(
+                                    value = state.title, 
+                                    onValueChange = { if (it.length <= 60) onEvent(AddEditTaskEvent.TitleChanged(it)) }, 
+                                    modifier = Modifier.fillMaxWidth(), 
+                                    textStyle = TextStyle(
+                                        color = primaryText, 
+                                        fontSize = 16.sp, 
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = PoppinsFontFamily
+                                    ), 
+                                    singleLine = true, 
+                                    cursorBrush = SolidColor(brandColor)
+                                )
                             }
                         }
                     }
                 }
-                Text(text = "${state.title.length}/60",
-                    modifier = Modifier.align(Alignment.End)
-                        .padding(top = 6.dp, end = 4.dp),
+                Text(
+                    text = "${state.title.length}/60",
+                    modifier = Modifier.align(Alignment.End).padding(top = 6.dp, end = 4.dp),
                     color = secondaryText,
-                    fontSize = 11.sp)
+                    fontSize = 11.sp,
+                    fontFamily = PoppinsFontFamily
+                )
             }
 
-            Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), color = cardColor, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
-                Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .width(7.dp)
-                            .fillMaxHeight()
-                            .background(categoryColor)
+            // ─── Description Section ──────────────────
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                color = cardColor,
+                border = BorderStroke(1.dp, cardBorderColor)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        stringResource(R.string.description_label), 
+                        color = brandColor,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        fontFamily = PoppinsFontFamily
                     )
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text("DESCRIPTION", color = brandColor,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Box {
-                            if (state.description.isEmpty()) Text("Add details, notes, or context...", color = secondaryText.copy(alpha = 0.5f), fontSize = 15.sp)
-                            BasicTextField(value = state.description,
-                                onValueChange = { onEvent(AddEditTaskEvent.DescriptionChanged(it)) }, modifier = Modifier.fillMaxWidth().height(50.dp), textStyle = TextStyle(color = primaryText, fontSize = 15.sp), cursorBrush = SolidColor(brandColor))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box {
+                        if (state.description.isEmpty()) {
+                            Text(
+                                stringResource(R.string.desc_hint), 
+                                color = secondaryText.copy(alpha = 0.4f), 
+                                fontSize = 15.sp,
+                                fontFamily = PoppinsFontFamily
+                            )
                         }
+                        BasicTextField(
+                            value = state.description,
+                            onValueChange = { onEvent(AddEditTaskEvent.DescriptionChanged(it)) }, 
+                            modifier = Modifier.fillMaxWidth().height(80.dp), 
+                            textStyle = TextStyle(
+                                color = primaryText, 
+                                fontSize = 15.sp,
+                                fontFamily = PoppinsFontFamily
+                            ), 
+                            cursorBrush = SolidColor(brandColor)
+                        )
                     }
                 }
             }
@@ -197,42 +254,29 @@ fun AddEditTaskScreen(
             HorizontalDivider(color = dividerColor.copy(alpha = 0.5f),
                 thickness = 1.dp)
 
-            Text("CATEGORY", color = secondaryText,
+            Text(stringResource(R.string.category_label), color = secondaryText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold)
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    TaskCategory.entries.take(4).forEach { category ->
-                        CategoryItem(
-                            category = category,
-                            isSelected = state.category == category,
-                            cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
-                            secondaryText = secondaryText,
-                            dividerColor = dividerColor,
-                            modifier = Modifier.weight(1f),
-                            onClick = { onEvent(AddEditTaskEvent.CategoryChanged(category)) }
-                        )
-                    }
-                }
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    TaskCategory.entries.drop(4).forEach { category ->
-                        CategoryItem(
-                            category = category,
-                            isSelected = state.category == category,
-                            cardColor = if (isDarkMode) Color(0xFF1E1E1E)
-                            else Color.White,
-                            secondaryText = secondaryText,
-                            dividerColor = dividerColor,
-                            modifier = Modifier.weight(1f),
-                            onClick = { onEvent(AddEditTaskEvent.CategoryChanged(category)) }
-                        )
+                categoryRows.forEach { rowCategories ->
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        rowCategories.forEach { category ->
+                            CategoryItem(
+                                category = category,
+                                isSelected = state.category == category,
+                                cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
+                                secondaryText = secondaryText,
+                                dividerColor = dividerColor,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onEvent(AddEditTaskEvent.CategoryChanged(category)) }
+                            )
+                        }
                     }
                 }
             }
 
-            Text("PRIORITY", color = secondaryText,
+            Text(stringResource(R.string.priority_label), color = secondaryText,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold)
             Row(modifier = Modifier.fillMaxWidth(),
@@ -250,10 +294,10 @@ fun AddEditTaskScreen(
                 }
             }
 
-            Text("DUE DATE & TIME", color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.due_date_time), color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                DateTimeCard(painter = painterResource(id = R.drawable.date_line), label = "DATE", value = state.dueDate?.let { dateFormat.format(it) } ?: "Set date", cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1.2f), onClick = { onEvent(AddEditTaskEvent.ToggleDatePicker) })
-                DateTimeCard(painter = painterResource(id = R.drawable.time_03), label = "TIME", value = state.dueTime ?: "Set time", cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1f), onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) })
+                DateTimeCard(painter = painterResource(id = R.drawable.date_line), label = stringResource(R.string.date), value = state.dueDate?.let { dateFormat.format(it) } ?: stringResource(R.string.set_date), cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1.2f), onClick = { onEvent(AddEditTaskEvent.ToggleDatePicker) })
+                DateTimeCard(painter = painterResource(id = R.drawable.time_03), label = stringResource(R.string.time), value = state.dueTime ?: stringResource(R.string.set_time), cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, primaryText = primaryText, secondaryText = secondaryText, brandColor = brandColor, dividerColor = dividerColor, modifier = Modifier.weight(1f), onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) })
             }
 
             Surface(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), color = if (isDarkMode) Color(0xFF1E1E1E) else Color.White, shadowElevation = 0.dp, border = BorderStroke(1.dp, dividerColor)) {
@@ -263,8 +307,8 @@ fun AddEditTaskScreen(
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Reminder", color = primaryText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        Text("Get notified before due", color = secondaryText, fontSize = 12.sp)
+                        Text(stringResource(R.string.reminder), color = primaryText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.reminder_desc), color = secondaryText, fontSize = 12.sp)
                     }
                     Icon(
                         painter = painterResource(
@@ -284,96 +328,69 @@ fun AddEditTaskScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("SUB-TASKS", color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.sub_tasks), color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 TextButton(onClick = { onEvent(AddEditTaskEvent.AddSubTask) }) {
                     Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add Sub-task")
+                    Text(stringResource(R.string.add_sub_task))
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 state.subTasks.forEachIndexed { index, subTask ->
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         color = cardColor,
-                        shadowElevation = 0.dp,
-                        border = BorderStroke(1.dp, dividerColor)
+                        border = BorderStroke(1.dp, cardBorderColor)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Min),
+                            modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Left accent strip (matches main task style)
-                            Box(
-                                modifier = Modifier
-                                    .width(7.dp)
-                                    .fillMaxHeight()
-                                    .background(
-                                        if (subTask.isCompleted) Color(0xFF22C55E)
-                                        else categoryColor.copy(alpha = 0.7f)
-                                    )
+                            // Sub-task Icon (Simplified for Input)
+                            Icon(
+                                imageVector = Icons.Default.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = secondaryText.copy(alpha = 0.4f),
+                                modifier = Modifier.size(20.dp)
                             )
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                            
+                            Spacer(modifier = Modifier.width(12.dp))
+                            
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (subTask.title.isEmpty()) {
                                     Text(
-                                        text = "SUB-TASK ${index + 1}",
-                                        color = brandColor,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        letterSpacing = 0.5.sp
+                                        stringResource(R.string.sub_task_hint),
+                                        color = secondaryText.copy(alpha = 0.4f),
+                                        fontSize = 14.sp,
+                                        fontFamily = PoppinsFontFamily
                                     )
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    IconButton(
-                                        onClick = { onEvent(AddEditTaskEvent.RemoveSubTask(subTask.id)) },
-                                        modifier = Modifier.size(24.dp)
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.recycle_bin_icon),
-                                            contentDescription = "Delete",
-                                            tint = Color.Red.copy(alpha = 0.7f),
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
                                 }
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(
-                                        onClick = { onEvent(AddEditTaskEvent.ToggleSubTaskCompletion(subTask.id)) },
-                                        modifier = Modifier.size(28.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (subTask.isCompleted) Icons.Default.RadioButtonChecked else Icons.Default.RadioButtonUnchecked,
-                                            contentDescription = null,
-                                            tint = if (subTask.isCompleted) brandColor else secondaryText,
-                                            modifier = Modifier.size(22.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        if (subTask.title.isEmpty()) {
-                                            Text(
-                                                "Enter sub-task step...",
-                                                color = secondaryText.copy(alpha = 0.5f),
-                                                fontSize = 15.sp
-                                            )
-                                        }
-                                        BasicTextField(
-                                            value = subTask.title,
-                                            onValueChange = { onEvent(AddEditTaskEvent.SubTaskTitleChanged(subTask.id, it)) },
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textStyle = TextStyle(
-                                                color = primaryText,
-                                                fontSize = 15.sp,
-                                                textDecoration = if (subTask.isCompleted) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
-                                            ),
-                                            cursorBrush = SolidColor(brandColor)
-                                        )
-                                    }
-                                }
+                                BasicTextField(
+                                    value = subTask.title,
+                                    onValueChange = { onEvent(AddEditTaskEvent.SubTaskTitleChanged(subTask.id, it)) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textStyle = TextStyle(
+                                        color = primaryText,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        fontFamily = PoppinsFontFamily
+                                    ),
+                                    cursorBrush = SolidColor(brandColor)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { onEvent(AddEditTaskEvent.RemoveSubTask(subTask.id)) },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.recycle_bin_icon),
+                                    contentDescription = "Delete",
+                                    tint = Color.Red.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
                         }
                     }
@@ -401,7 +418,7 @@ fun AddEditTaskScreen(
                     )
                 } else {
                     Text(
-                        text = if (state.isEditing) "Update Task" else "Add Task",
+                        text = if (state.isEditing) stringResource(R.string.update_task) else stringResource(R.string.add_task),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -419,16 +436,16 @@ fun AddEditTaskScreen(
             confirmButton = { TextButton(onClick =
                 { datePickerState.selectedDateMillis?.let {
                     onEvent(AddEditTaskEvent.DueDateChanged(Date(it))) }
-                }) { Text("OK") } }, dismissButton =
+                }) { Text(stringResource(R.string.ok)) } }, dismissButton =
                 { TextButton(onClick =
                     { onEvent(AddEditTaskEvent.ToggleDatePicker) })
-                { Text("Cancel") } }) { DatePicker(state =
+                { Text(stringResource(R.string.cancel)) } }) { DatePicker(state =
             datePickerState) }
     }
     if (state.showTimePicker) {
         androidx.compose.material3.AlertDialog(onDismissRequest =
             { onEvent(AddEditTaskEvent.ToggleTimePicker) },
-            confirmButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.DueTimeChanged(String.format(java.util.Locale.getDefault(), "%02d:%02d", timePickerState.hour, timePickerState.minute))) }) { Text("OK") } }, dismissButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) }) { Text("Cancel") } }, text = { TimePicker(state = timePickerState) })
+            confirmButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.DueTimeChanged(String.format(java.util.Locale.getDefault(), "%02d:%02d", timePickerState.hour, timePickerState.minute))) }) { Text(stringResource(R.string.ok)) } }, dismissButton = { TextButton(onClick = { onEvent(AddEditTaskEvent.ToggleTimePicker) }) { Text(stringResource(R.string.cancel)) } }, text = { TimePicker(state = timePickerState) })
     }
 }
 
@@ -598,56 +615,27 @@ fun SingleSubTaskPreview() {
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(12.dp),
-            color = Color.White,
-            border = BorderStroke(1.dp, Color(0xFFEEEEEE))
+            color = Color(0xFFF5F5F7),
+            border = BorderStroke(1.dp, Color.Black.copy(alpha = 0.05f))
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
+                modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(7.dp)
-                        .fillMaxHeight()
-                        .background(Color(0xFF7B61FF).copy(alpha = 0.6f))
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "Example sub-task step",
+                    color = Color(0xFF1A1A1A),
+                    fontSize = 14.sp,
+                    fontFamily = PoppinsFontFamily,
+                    modifier = Modifier.weight(1f)
                 )
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "SUB-TASK 1",
-                            color = Color(0xFF7B61FF),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        IconButton(onClick = {}, modifier = Modifier.size(24.dp)) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.recycle_bin_icon),
-                                contentDescription = null,
-                                tint = Color.Red.copy(alpha = 0.7f),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.RadioButtonUnchecked,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Example sub-task step",
-                            color = Color(0xFF1A1A1A),
-                            fontSize = 15.sp,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.recycle_bin_icon),
+                    contentDescription = null,
+                    tint = Color.Red.copy(alpha = 0.5f),
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }

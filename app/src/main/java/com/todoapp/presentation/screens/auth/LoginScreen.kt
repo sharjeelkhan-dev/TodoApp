@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.presentation.theme.TodoAppTheme
 
@@ -80,7 +81,7 @@ fun LoginScreen(
                 )
             }
             Text(
-                text = if (state.isSignUpMode) "Create Account" else "Welcome Back",
+                text = if (state.isSignUpMode) stringResource(R.string.create_account) else stringResource(R.string.welcome_back),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Black,
                     color = primaryText,
@@ -89,7 +90,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = if (state.isSignUpMode) "Join us to start managing your tasks" else "Login to sync your tasks across devices",
+                text = if (state.isSignUpMode) stringResource(R.string.join_us) else stringResource(R.string.login_desc),
                 color = secondaryText,
                 fontSize = 14.sp,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -103,8 +104,8 @@ fun LoginScreen(
                     value = state.displayName,
                     onValueChange = { onEvent(LoginEvent.DisplayNameChanged(it)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    label = { Text("Full Name") },
-                    placeholder = { Text("John Doe") },
+                    label = { Text(stringResource(R.string.full_name)) },
+                    placeholder = { Text(stringResource(R.string.john_doe)) },
                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = brandColor) },
                     shape = RoundedCornerShape(16.dp),
                     singleLine = true,
@@ -121,8 +122,8 @@ fun LoginScreen(
                 value = state.email,
                 onValueChange = { onEvent(LoginEvent.EmailChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Email Address") },
-                placeholder = { Text("example@mail.com") },
+                label = { Text(stringResource(R.string.email_address)) },
+                placeholder = { Text(stringResource(R.string.example_mail)) },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = brandColor) },
                 shape = RoundedCornerShape(16.dp),
                 singleLine = true,
@@ -138,7 +139,7 @@ fun LoginScreen(
                 value = state.password,
                 onValueChange = { onEvent(LoginEvent.PasswordChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = brandColor) },
                 trailingIcon = {
                     IconButton(onClick = { onEvent(LoginEvent.TogglePasswordVisibility) }) {
@@ -166,7 +167,7 @@ fun LoginScreen(
                     value = state.confirmPassword,
                     onValueChange = { onEvent(LoginEvent.ConfirmPasswordChanged(it)) },
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    label = { Text("Confirm Password") },
+                    label = { Text(stringResource(R.string.confirm_password)) },
                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = brandColor) },
                     visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -205,7 +206,7 @@ fun LoginScreen(
                 if (state.isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(if (state.isSignUpMode) "Sign Up" else "Sign In", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(if (state.isSignUpMode) stringResource(R.string.sign_up) else stringResource(R.string.sign_in), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
 
@@ -215,13 +216,13 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (state.isSignUpMode) "Already have an account?" else "Don't have an account?",
+                    if (state.isSignUpMode) stringResource(R.string.already_have_account) else stringResource(R.string.dont_have_account),
                     color = secondaryText,
                     fontSize = 14.sp
                 )
                 TextButton(onClick = { onEvent(LoginEvent.ToggleMode) }) {
                     Text(
-                        if (state.isSignUpMode) "Sign In" else "Sign Up",
+                        if (state.isSignUpMode) stringResource(R.string.sign_in) else stringResource(R.string.sign_up),
                         color = brandColor,
                         fontWeight = FontWeight.Bold
                     )

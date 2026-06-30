@@ -9,6 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.Task
@@ -23,7 +24,7 @@ import com.todoapp.presentation.theme.TodoAppTheme
 fun MainScreen(
     navController: NavController,
     isDarkMode: Boolean,
-    viewModel: TaskListViewModel = hiltViewModel()
+    viewModel: TaskListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -37,8 +38,7 @@ fun MainScreen(
         isDarkMode = isDarkMode,
         onEvent = viewModel::onEvent,
         onNavigateToAddEditTask = { taskId ->
-            navController.navigate(Screen
-                .AddEditTask.createRoute(taskId))
+            navController.navigate(Screen.AddEditTask.createRoute(taskId))
         },
         onNavigateToSettings = {
             navController.navigate(Screen.Settings.route)
@@ -92,8 +92,8 @@ fun MainContent(
                     .size(60.dp)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.add_square_fill),
-                    contentDescription = "Add",
+                    painter = painterResource(id = R.drawable.plus_line_icon),
+                    contentDescription = stringResource(R.string.add_task),
                     modifier = Modifier.size(24.dp)
                 )
             }

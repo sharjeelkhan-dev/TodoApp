@@ -12,7 +12,9 @@ data class SettingsState(
     val message: String? = null,
     val isSignedOut: Boolean = false,
     val lastBackupTime: String? = null,
-    val lastRestoreTime: String? = null
+    val lastRestoreTime: String? = null,
+    val customApiKey: String = "",
+    val showApiKeyDialog: Boolean = false
 ) {
     // Computed property for general loading if needed
     val isLoading: Boolean get() = isBackupLoading || isRestoreLoading
@@ -26,4 +28,7 @@ sealed class SettingsEvent {
     data object BackupData : SettingsEvent()
     data object RestoreData : SettingsEvent()
     data object ClearMessage : SettingsEvent()
+    data class ApiKeyChanged(val key: String) : SettingsEvent()
+    data object SaveApiKey : SettingsEvent()
+    data object ToggleApiKeyDialog : SettingsEvent()
 }

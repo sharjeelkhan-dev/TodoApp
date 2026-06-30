@@ -23,13 +23,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val addTaskUseCase: AddTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val getTaskByIdUseCase: GetTaskByIdUseCase,
     private val authRepository: AuthRepository,
-    private val reminderManager: ReminderManager
+    private val reminderManager: ReminderManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddEditTaskState())
@@ -39,7 +39,7 @@ class AddEditTaskViewModel @Inject constructor(
 
     init {
         val taskId = savedStateHandle.get<String>("taskId")
-        if (taskId != null && taskId != "new") {
+        if (taskId != null && (taskId != "new")) {
             loadTask(taskId)
         }
     }
@@ -171,7 +171,7 @@ class AddEditTaskViewModel @Inject constructor(
                     _state.update {
                         it.copy(isLoading = false, error = error.message ?: "Failed to save task")
                     }
-                }
+                },
             )
         }
     }

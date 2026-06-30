@@ -2,6 +2,9 @@ package com.todoapp.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import com.todoapp.data.local.PreferenceManager
 import com.todoapp.domain.repository.AuthRepository
 import com.todoapp.domain.usecase.BackupRestoreUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +12,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val backupRestoreUseCase: BackupRestoreUseCase,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val preferenceManager: PreferenceManager,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsState())
@@ -36,6 +41,15 @@ class SettingsViewModel @Inject constructor(
 
     init {
         loadUserProfile()
+        loadSettings()
+    }
+
+    private fun loadSettings() {
+        viewModelScope.launch {
+            preferenceManager.apiKey.collectLatest { key ->
+                _state.update { it.copy(customApiKey = key ?: "") }
+            }
+        }
     }
 
     private fun loadUserProfile() {
@@ -58,7 +72,7 @@ class SettingsViewModel @Inject constructor(
                     try {
                         _state.update { it.copy(isBackupLoading = true, message = null) }
                         
-                        withTimeout(60000L) {
+                        withTimeout(1.minutes) {
                             backupRestoreUseCase.backup(userId).fold(
                                 onSuccess = {
                                     val currentTime = dateTimeFormat.format(Date())
@@ -79,7 +93,7 @@ class SettingsViewModel @Inject constructor(
                                 }
                             )
                         }
-                    } catch (e: TimeoutCancellationException) {
+                    } catch (_: TimeoutCancellationException) {
                         _state.update { it.copy(message = "Backup timed out. Please check your network.", isBackupLoading = false) }
                     } catch (e: Exception) {
                         if (e is kotlinx.coroutines.CancellationException) throw e
@@ -127,6 +141,18 @@ class SettingsViewModel @Inject constructor(
             }
             SettingsEvent.ClearMessage -> {
                 _state.update { it.copy(message = null) }
+            }
+            is SettingsEvent.ApiKeyChanged -> {
+                _state.update { it.copy(customApiKey = event.key) }
+            }
+            SettingsEvent.SaveApiKey -> {
+                viewModelScope.launch {
+                    preferenceManager.saveApiKey(_state.value.customApiKey)
+                    _state.update { it.copy(message = "API Key saved successfully", showApiKeyDialog = false) }
+                }
+            }
+            SettingsEvent.ToggleApiKeyDialog -> {
+                _state.update { it.copy(showApiKeyDialog = !it.showApiKeyDialog) }
             }
         }
     }

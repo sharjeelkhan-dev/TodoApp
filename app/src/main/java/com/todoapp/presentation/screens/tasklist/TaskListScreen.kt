@@ -3,8 +3,22 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -14,23 +28,42 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -45,6 +78,7 @@ import com.todoapp.presentation.theme.TodoAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun TaskListScreen(
@@ -58,25 +92,28 @@ fun TaskListScreen(
     initiallyExpanded: Boolean = false,
 ) {
     val listState = rememberLazyListState()
-    val isDarkTheme = isSystemInDarkTheme()
-    val scrollbarBaseColor = if (isDarkTheme) Color.White else Color.Black
     val brandColor = Color(0xFF7B61FF)
     val successColor = Color(0xFF22C55E)
     val secondaryText = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF8E8E93)
     val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
-    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
-    val bgColor = if (isDarkMode) Color(0xFF121212) else Color(0xFFFBFBF9)
+    val cardBg = if (isDarkMode) Color(0xFF231F26) else Color.White
+    val bgColor = if (isDarkMode) Color(0xFF1C1B21) else Color(0xFFFBFBF9)
     
     val searchFocusRequester = remember { FocusRequester() }
 
+    val activeTasks = remember(state.tasks) { state.tasks.filter { !it.isCompleted } }
+    val completedTasks = remember(state.tasks) { state.tasks.filter { it.isCompleted } }
     val isListEmpty = state.tasks.isEmpty() && !state.isLoading
+
+    val taskDeletedMessage = stringResource(R.string.task_deleted)
+    val undoLabel = stringResource(R.string.undo)
 
     LaunchedEffect(state.recentlyDeletedTask) {
         val task = state.recentlyDeletedTask ?: return@LaunchedEffect
         try {
             val result = snackbarHostState.showSnackbar(
-                message = "\"${task.title}\" deleted",
-                actionLabel = "Undo",
+                message = "\"${task.title}\" $taskDeletedMessage",
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Long
             )
             if (result == SnackbarResult.ActionPerformed) onEvent(TaskListEvent.UndoDelete)
@@ -94,7 +131,7 @@ fun TaskListScreen(
 
     LaunchedEffect(state.isSearchActive) {
         if (state.isSearchActive) {
-            kotlinx.coroutines.delay(100)
+            kotlinx.coroutines.delay(100.milliseconds)
             searchFocusRequester.requestFocus()
         }
     }
@@ -131,7 +168,7 @@ fun TaskListScreen(
                         .padding(horizontal = 24.dp, vertical = 24.dp)
                         .focusRequester(searchFocusRequester)
                         .clickable(enabled = false) { }, // Prevent dismissing when clicking the bar itself
-                    placeholder = { Text("Search tasks...") },
+                    placeholder = { Text(stringResource(R.string.search_tasks_hint)) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = brandColor) },
                     trailingIcon = {
                         IconButton(onClick = { 
@@ -142,7 +179,7 @@ fun TaskListScreen(
                             }
                         }) {
                             Icon(Icons.Default.Close,
-                                contentDescription = "Close",
+                                contentDescription = stringResource(R.string.close),
                                 tint = secondaryText)
                         }
                     },
@@ -185,7 +222,7 @@ fun TaskListScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
-                        text = "Gemini is working...",
+                        text = stringResource(R.string.gemini_working),
                         style = MaterialTheme.typography.labelLarge,
                         color = brandColor,
                         fontWeight = FontWeight.SemiBold,
@@ -238,7 +275,7 @@ fun TaskListScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "AI Task Assistant",
+                        text = stringResource(R.string.ai_task_assistant),
                         style = MaterialTheme.typography.headlineSmall,
                         color = primaryText,
                         fontWeight = FontWeight.ExtraBold
@@ -247,7 +284,7 @@ fun TaskListScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "Manage your tasks using natural language.",
+                        text = stringResource(R.string.ai_assistant_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = secondaryText,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -285,7 +322,7 @@ fun TaskListScreen(
                         value = aiPrompt,
                         onValueChange = { aiPrompt = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("How can I help?") },
+                        placeholder = { Text(stringResource(R.string.how_can_i_help)) },
                         shape = RoundedCornerShape(20.dp),
                         maxLines = 4,
                         minLines = 2, // Make it look more like an input box
@@ -311,7 +348,7 @@ fun TaskListScreen(
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, secondaryText.copy(alpha = 0.3f))
                         ) {
-                            Text("Cancel", color = secondaryText)
+                            Text(stringResource(R.string.cancel), color = secondaryText)
                         }
                         
                         Button(
@@ -327,7 +364,7 @@ fun TaskListScreen(
                         ) {
                             Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text("Execute")
+                            Text(stringResource(R.string.execute))
                         }
                     }
                     
@@ -342,7 +379,7 @@ fun TaskListScreen(
                     ) {
                         Icon(painterResource(R.drawable.star), null, tint = brandColor, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Auto-Prioritize My List", color = brandColor, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.auto_prioritize), color = brandColor, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -352,11 +389,7 @@ fun TaskListScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bgColor)
-            .verticalScrollbar(
-                state = listState,
-                color = scrollbarBaseColor.copy(alpha = 0.3f)
-            ),
+            .background(bgColor),
         state = listState,
         contentPadding = PaddingValues(
             top = contentPadding.calculateTopPadding() + 16.dp,
@@ -406,7 +439,7 @@ fun TaskListScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "No tasks found",
+                        text = stringResource(R.string.no_tasks_found),
                         color = secondaryText,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium
@@ -414,11 +447,8 @@ fun TaskListScreen(
                 }
             }
         } else {
-            val activeTasks = state.tasks.filter { !it.isCompleted }
-            val completedTasks = state.tasks.filter { it.isCompleted }
-
             if (activeTasks.isNotEmpty()) {
-                item { SectionHeader("ACTIVE", secondaryText) }
+                item { SectionHeader(stringResource(R.string.active), secondaryText) }
                 items(activeTasks, key = { it.id }) { task ->
                     TaskCard(
                         task = task,
@@ -435,12 +465,12 @@ fun TaskListScreen(
 
             if (completedTasks.isNotEmpty()) {
                 item { Spacer(modifier = Modifier.height(12.dp)) }
-                item { SectionHeader("COMPLETED", secondaryText) }
+                item { SectionHeader(stringResource(R.string.completed), secondaryText) }
                 items(completedTasks, key = { it.id }) { task ->
                     TaskCard(
                         task = task,
-                        modifier = Modifier.offset(y = (-10).dp),
                         isDarkMode = isDarkMode,
+                        modifier = Modifier.offset(y = (-10).dp),
                         onToggleCompletion = { onEvent(TaskListEvent.ToggleCompletion(task.id)) },
                         onToggleSubTask = { subTaskId -> onEvent(TaskListEvent.ToggleSubTask(task.id, subTaskId)) },
                         onDelete = { onEvent(TaskListEvent.DeleteTask(task)) },
@@ -483,7 +513,7 @@ private fun HeaderTopRow(
                 )
             )
             Text(
-                text = "My Tasks",
+                text = stringResource(R.string.my_tasks),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Black,
                     color = primaryText,
@@ -541,18 +571,21 @@ private fun HeaderStatsAndProgress(
     val progress = if (totalWorkItems == 0) 0f else doneWorkItems.toFloat() / totalWorkItems
     val animatedProgress by animateFloatAsState(targetValue = progress, label = "progress")
 
+    val pendingSuffix = stringResource(R.string.pending).lowercase()
+    val doneSuffix = stringResource(R.string.completed).lowercase()
+
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // Stats Row
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatChip(text = "$pendingWorkItems pending", color = brandColor, isDarkMode = isDarkMode)
-            StatChip(text = "$doneWorkItems done", color = successColor, isDarkMode = isDarkMode)
+            StatChip(text = "$pendingWorkItems $pendingSuffix", color = brandColor, isDarkMode = isDarkMode)
+            StatChip(text = "$doneWorkItems $doneSuffix", color = successColor, isDarkMode = isDarkMode)
         }
 
         // Progress Section
         Column(modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Today's progress",
+                text = stringResource(R.string.todays_progress),
                 color = secondaryText,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
@@ -563,6 +596,7 @@ private fun HeaderStatsAndProgress(
                     progress = { animatedProgress },
                     modifier = Modifier.fillMaxWidth()
                         .height(6.dp)
+                        .offset(y = (-5).dp)
                         .clip(CircleShape),
                     color = successColor,
                     trackColor = if (isDarkMode)
@@ -576,14 +610,15 @@ private fun HeaderStatsAndProgress(
                 Box(
                     modifier = Modifier
                         .size(6.dp)
+                        .offset(y = (-5).dp)
                         .clip(CircleShape)
                         .background(successColor)
                 )
             }
-
             Text(
                 text = "${(progress * 100).toInt()}%",
                 color = successColor,
+                modifier = Modifier.offset(y = (-10).dp),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -632,17 +667,24 @@ private fun ActionButton(
 }
 
 @Composable
-private fun StatChip(text: String, color: Color, isDarkMode: Boolean) {
+private fun StatChip(text: String, color: Color, isDarkMode: Boolean)
+{
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
-        border = BorderStroke(1.dp, if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFF1F5F9)),
+        border = BorderStroke(1.dp, if (isDarkMode)
+            Color(0xFF2C2C2C) else Color(0xFFF1F5F9)),
         shadowElevation = 2.dp
     ) {
-        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.size(8.dp).clip(CircleShape)
+                .background(color))
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF475569), fontWeight = FontWeight.Medium, fontSize = 13.sp)
+            Text(text = text, color = if (isDarkMode) Color(0xFF94A3B8)
+            else Color(0xFF475569),
+                fontWeight = FontWeight.Medium,
+                fontSize = 13.sp)
         }
     }
 }
@@ -654,29 +696,8 @@ private fun SectionHeader(title: String, color: Color) {
         fontWeight = FontWeight.Bold,
         letterSpacing = 1.2.sp,
         modifier = Modifier
-            .padding(top = 16.dp,
+            .padding(top = 5.dp,
                 bottom = 4.dp))
-}
-
-fun Modifier.verticalScrollbar(
-    state: androidx.compose.foundation.lazy.LazyListState,
-    width: Dp = 4.dp,
-    color: Color = Color.Gray
-): Modifier = drawWithContent {
-    drawContent()
-    val firstVisibleElementIndex = state.layoutInfo.visibleItemsInfo.firstOrNull()?.index
-    val totalElementCount = state.layoutInfo.totalItemsCount
-    if (firstVisibleElementIndex != null && totalElementCount > 0) {
-        val elementHeight = size.height / totalElementCount
-        val scrollbarHeight = state.layoutInfo.visibleItemsInfo.size * elementHeight
-        val scrollbarOffsetY = firstVisibleElementIndex * elementHeight
-        drawRoundRect(
-            color = color,
-            topLeft = Offset(size.width - width.toPx(), scrollbarOffsetY),
-            size = Size(width.toPx(), scrollbarHeight),
-            cornerRadius = CornerRadius(width.toPx() / 2, width.toPx() / 2)
-        )
-    }
 }
 
 @Preview(showBackground = true)
