@@ -23,6 +23,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -74,7 +77,9 @@ import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskPriority
 import com.todoapp.presentation.screens.tasklist.components.SortBottomSheet
 import com.todoapp.presentation.screens.tasklist.components.TaskCard
+import com.todoapp.presentation.theme.PoppinsFontFamily
 import com.todoapp.presentation.theme.TodoAppTheme
+import androidx.compose.ui.text.TextStyle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -185,6 +190,10 @@ fun TaskListScreen(
                     },
                     shape = RoundedCornerShape(24.dp),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = { onEvent(TaskListEvent.ToggleSearch) }
+                    ),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = brandColor,
                         unfocusedBorderColor = Color.Transparent,
@@ -235,151 +244,146 @@ fun TaskListScreen(
 
     if (state.isAICommandDialogOpen) {
         var aiPrompt by remember { mutableStateOf("") }
-        val suggestions = listOf(
-            "Add task buy groceries",
-            "Mark study as done",
-            "Delete old tasks"
-        )
+        val suggestions = listOf("Add task...", "Mark as done...", "Delete old...")
 
         Dialog(
-            onDismissRequest = { onEvent(TaskListEvent.ToggleAICommandDialog) }
+            onDismissRequest = { onEvent(TaskListEvent.ToggleAICommandDialog) },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
         ) {
             Surface(
-                shape = RoundedCornerShape(32.dp),
-                color = cardBg,
-                tonalElevation = 8.dp,
-                border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .wrapContentHeight() // Ensure it doesn't stretch
+                    .padding(horizontal = 24.dp)
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(24.dp),
+                color = cardBg,
+                tonalElevation = 8.dp,
+                border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f))
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .background(brandColor.copy(alpha = 0.1f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            tint = brandColor,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.ai_task_assistant),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = primaryText,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = stringResource(R.string.ai_assistant_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = secondaryText,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Suggestion Chips with FlowRow
-                    FlowRow(
+                Column(modifier = Modifier.padding(20.dp)) {
+                    // Header
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        maxItemsInEachRow = 2
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        suggestions.forEach { suggestion ->
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(brandColor.copy(alpha = 0.1f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.AutoAwesome, null, tint = brandColor, modifier = Modifier.size(20.dp))
+                        }
+                        Text(
+                            text = stringResource(R.string.ai_task_assistant),
+                            style = TextStyle(
+                                fontFamily = PoppinsFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = primaryText
+                            ),
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(
+                            onClick = { onEvent(TaskListEvent.ToggleAICommandDialog) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Default.Close, null, tint = secondaryText, modifier = Modifier.size(20.dp))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Input Area
+                    OutlinedTextField(
+                        value = aiPrompt,
+                        onValueChange = { aiPrompt = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { 
+                            Text(
+                                stringResource(R.string.how_can_i_help),
+                                style = TextStyle(fontFamily = PoppinsFontFamily, fontSize = 14.sp)
+                            ) 
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        maxLines = 3,
+                        textStyle = TextStyle(fontFamily = PoppinsFontFamily, color = primaryText, fontSize = 15.sp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = brandColor,
+                            unfocusedBorderColor = secondaryText.copy(alpha = 0.2f),
+                            focusedContainerColor = bgColor.copy(alpha = 0.5f),
+                            unfocusedContainerColor = bgColor.copy(alpha = 0.5f),
+                            cursorColor = brandColor
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Suggestions (Compact Row)
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(suggestions) { suggestion ->
                             SuggestionChip(
                                 onClick = { aiPrompt = suggestion },
                                 label = { 
                                     Text(
                                         suggestion, 
-                                        style = MaterialTheme.typography.labelMedium
+                                        style = TextStyle(fontFamily = PoppinsFontFamily, fontSize = 12.sp)
                                     ) 
                                 },
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.padding(4.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 colors = SuggestionChipDefaults.suggestionChipColors(
-                                    labelColor = brandColor
+                                    labelColor = brandColor,
+                                    containerColor = brandColor.copy(alpha = 0.05f)
+                                ),
+                                border = SuggestionChipDefaults.suggestionChipBorder(
+                                    enabled = true,
+                                    borderColor = brandColor.copy(alpha = 0.1f)
                                 )
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    OutlinedTextField(
-                        value = aiPrompt,
-                        onValueChange = { aiPrompt = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(stringResource(R.string.how_can_i_help)) },
-                        shape = RoundedCornerShape(20.dp),
-                        maxLines = 4,
-                        minLines = 2, // Make it look more like an input box
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = brandColor,
-                            unfocusedBorderColor = secondaryText.copy(alpha = 0.3f),
-                            focusedContainerColor = bgColor.copy(alpha = 0.5f),
-                            unfocusedContainerColor = bgColor.copy(alpha = 0.5f),
-                            focusedTextColor = primaryText,
-                            unfocusedTextColor = primaryText
-                        )
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Actions
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        OutlinedButton(
-                            onClick = { onEvent(TaskListEvent.ToggleAICommandDialog) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(1.dp, secondaryText.copy(alpha = 0.3f))
+                        TextButton(
+                            onClick = { onEvent(TaskListEvent.SmartPrioritize) },
+                            modifier = Modifier.height(48.dp)
                         ) {
-                            Text(stringResource(R.string.cancel), color = secondaryText)
+                            Icon(painterResource(R.drawable.star), null, tint = brandColor, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                stringResource(R.string.auto_prioritize),
+                                style = TextStyle(fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold, color = brandColor)
+                            )
                         }
                         
+                        Spacer(modifier = Modifier.weight(1f))
+
                         Button(
                             onClick = { 
                                 if (aiPrompt.isNotBlank()) {
                                     onEvent(TaskListEvent.ExecuteAICommand(aiPrompt))
                                 }
                             },
-                            modifier = Modifier.weight(1.5f),
-                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.height(48.dp),
+                            shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = brandColor),
                             enabled = aiPrompt.isNotBlank()
                         ) {
-                            Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.execute))
+                            Text(
+                                stringResource(R.string.execute),
+                                style = TextStyle(fontFamily = PoppinsFontFamily, fontWeight = FontWeight.Bold)
+                            )
                         }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    HorizontalDivider(color = secondaryText.copy(alpha = 0.1f))
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    TextButton(
-                        onClick = { onEvent(TaskListEvent.SmartPrioritize) }
-                    ) {
-                        Icon(painterResource(R.drawable.star), null, tint = brandColor, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.auto_prioritize), color = brandColor, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -420,6 +424,45 @@ fun TaskListScreen(
                 secondaryText = secondaryText,
                 isDarkMode = isDarkMode
             )
+        }
+
+        if (state.searchQuery.isNotEmpty()) {
+            item {
+                Surface(
+                    onClick = { onEvent(TaskListEvent.SearchQueryChanged("")) },
+                    shape = RoundedCornerShape(12.dp),
+                    color = brandColor.copy(alpha = 0.1f),
+                    border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = brandColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "${stringResource(R.string.results_for)} \"${state.searchQuery}\"",
+                            style = TextStyle(
+                                fontFamily = PoppinsFontFamily,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 13.sp,
+                                color = brandColor
+                            )
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.close),
+                            tint = brandColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
         }
 
         if (isListEmpty) {

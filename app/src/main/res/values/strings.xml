@@ -110,6 +110,7 @@
     <string name="low_priority_first">Low priority tasks first</string>
     <string name="alphabetical">Alphabetical order</string>
     <string name="ai_smart_order">AI-recommended task order</string>
+    <string name="results_for">Results for</string>
     <string name="error_email_empty">Email cannot be empty</string>
     <string name="error_password_empty">Password cannot be empty</string>
     <string name="error_display_name_empty">Display Name cannot be empty</string>

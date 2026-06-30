@@ -58,9 +58,7 @@ class TaskListViewModel @Inject constructor(
                 }
             }
             TaskListEvent.ToggleSearch -> {
-                val isActive = !_state.value.isSearchActive
-                _state.update { it.copy(isSearchActive = isActive, searchQuery = "") }
-                if (!isActive) observeTasks()
+                _state.update { it.copy(isSearchActive = !it.isSearchActive) }
             }
             is TaskListEvent.FilterByStatus -> {
                 _state.update {
