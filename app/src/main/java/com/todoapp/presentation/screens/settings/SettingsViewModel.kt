@@ -2,8 +2,6 @@ package com.todoapp.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import com.todoapp.data.local.PreferenceManager
 import com.todoapp.domain.repository.AuthRepository
 import com.todoapp.domain.usecase.BackupRestoreUseCase
@@ -21,11 +19,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-
-/**
- * ViewModel for Settings screen.
- * Simplified: Authentication removed. Uses a fixed "default_user" ID for cloud storage.
- */
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val backupRestoreUseCase: BackupRestoreUseCase,
@@ -95,8 +90,9 @@ class SettingsViewModel @Inject constructor(
                         }
                     } catch (_: TimeoutCancellationException) {
                         _state.update { it.copy(message = "Backup timed out. Please check your network.", isBackupLoading = false) }
-                    } catch (e: Exception) {
-                        if (e is kotlinx.coroutines.CancellationException) throw e
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
                         _state.update { it.copy(message = "Connection error. Please try again.", isBackupLoading = false) }
                     } finally {
                         _state.update { it.copy(isBackupLoading = false) }
@@ -108,7 +104,7 @@ class SettingsViewModel @Inject constructor(
                     try {
                         _state.update { it.copy(isRestoreLoading = true, message = null) }
                         
-                        withTimeout(10000L) {
+                        withTimeout(10.seconds) {
                             backupRestoreUseCase.restore(userId).fold(
                                 onSuccess = {
                                     val currentTime = dateTimeFormat.format(Date())
@@ -129,10 +125,11 @@ class SettingsViewModel @Inject constructor(
                                 }
                             )
                         }
-                    } catch (e: TimeoutCancellationException) {
+                    } catch (_: TimeoutCancellationException) {
                         _state.update { it.copy(message = "Restore timed out. Please check your network.", isRestoreLoading = false) }
-                    } catch (e: Exception) {
-                        if (e is kotlinx.coroutines.CancellationException) throw e
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
                         _state.update { it.copy(message = "Connection error. Please try again.", isRestoreLoading = false) }
                     } finally {
                         _state.update { it.copy(isRestoreLoading = false) }

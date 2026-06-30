@@ -564,8 +564,13 @@ private fun HeaderStatsAndProgress(
     secondaryText: Color,
     isDarkMode: Boolean
 ) {
-    val totalWorkItems = tasks.size + tasks.sumOf { it.subTasks.size }
-    val doneWorkItems = tasks.count { it.isCompleted } + tasks.sumOf { it.subTasks.count { st -> st.isCompleted } }
+    val stats = remember(tasks) {
+        val total = tasks.size + tasks.sumOf { it.subTasks.size }
+        val done = tasks.count { it.isCompleted } + tasks.sumOf { it.subTasks.count { st -> st.isCompleted } }
+        total to done
+    }
+    val totalWorkItems = stats.first
+    val doneWorkItems = stats.second
     val pendingWorkItems = totalWorkItems - doneWorkItems
     
     val progress = if (totalWorkItems == 0) 0f else doneWorkItems.toFloat() / totalWorkItems

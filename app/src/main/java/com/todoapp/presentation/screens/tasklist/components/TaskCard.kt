@@ -160,7 +160,7 @@ fun TaskCard(
         label = "cardAlpha"
     )
 
-    Box(modifier = modifier.graphicsLayer(alpha = cardAlpha)) {
+    Box(modifier = modifier.graphicsLayer { alpha = cardAlpha }) {
         Column {
             Surface(
                 modifier = Modifier
@@ -286,7 +286,7 @@ fun TaskCard(
                                         tint = secondaryText.copy(alpha = 0.7f),
                                         modifier = Modifier
                                             .size(16.dp)
-                                            .graphicsLayer(rotationZ = arrowRotation)
+                                            .graphicsLayer { rotationZ = arrowRotation }
                                     )
                                 }
                             }
@@ -446,7 +446,7 @@ private fun SubTaskItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .graphicsLayer(alpha = completionAlpha)
+            .graphicsLayer { alpha = completionAlpha }
             .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 1.dp,

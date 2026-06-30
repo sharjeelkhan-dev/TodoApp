@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons)
     implementation(libs.compose.animation)
-    implementation(libs.compose.googlefonts)
     debugImplementation(libs.compose.ui.tooling)
 
     // Navigation

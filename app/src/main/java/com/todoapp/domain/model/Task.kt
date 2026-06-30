@@ -1,10 +1,12 @@
 package com.todoapp.domain.model
 
+import androidx.compose.runtime.Immutable
 import java.util.Date
 
 /**
  * Core domain model representing a Task.
  */
+@Immutable
 data class Task(
     val id: String = "",
     val title: String = "",

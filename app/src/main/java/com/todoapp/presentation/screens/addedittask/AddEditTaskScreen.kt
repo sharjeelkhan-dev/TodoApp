@@ -23,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -348,15 +347,7 @@ fun AddEditTaskScreen(
                             modifier = Modifier.padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Sub-task Icon (Simplified for Input)
-                            Icon(
-                                imageVector = Icons.Default.RadioButtonUnchecked,
-                                contentDescription = null,
-                                tint = secondaryText.copy(alpha = 0.4f),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             
                             Box(modifier = Modifier.weight(1f)) {
                                 if (subTask.title.isEmpty()) {
@@ -606,6 +597,7 @@ fun AddEditTaskScreenPreviewLight() {
     }
 }
 
+@Preview(showBackground = true, name = "Single Sub-task Card")
 @Preview(showBackground = true, name = "Single Sub-task Card")
 @Composable
 fun SingleSubTaskPreview() {
