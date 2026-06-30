@@ -22,12 +22,11 @@ An advanced, intelligent task management application built with **Kotlin** and *
 > 🔒 **Security Notice:** The source code of this repository is kept **Private** to protect proprietary AI command-parsing algorithms and configuration keys. 
 *   **[📸 View Application Screenshots / UI Flow](
 
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/9e459ca4-2e4e-435b-956f-7223d0015938" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/e5c9e6c7-5ae4-4b55-b9ec-0202e09dd382" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/84961a13-5b77-402e-9574-e4ca0cac2ca9" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/b1924ce5-93a0-4134-bb35-0cda309f29c8" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/d3fc5289-977d-4932-8b5c-e297660e98e6" />
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/5bd638c8-0aed-4878-b905-4ac4bcee19a3" />
+ <tr>
+   <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/0687323d-7c9c-42cd-adef-e3a5af4370b3" width="100%" alt="Screen 1 (Chat)" /></td>
+   <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/88d00193-695e-4713-b450-014b26e70ca4" width="100%" alt="Screen 2 (Settings)" /></td>
+   <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/8c816a1b-0fa2-40d0-bf6c-4bcee829c79b" width="100%" alt="Screen 3 (Profile)" /></td>
+ </tr>
 
 ---
 
