@@ -1,14 +1,10 @@
 package com.todoapp.presentation.screens.addedittask
 
 import com.todoapp.domain.model.SubTask
-import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
 import java.util.Date
 
-/**
- * UI state for the Add/Edit Task screen.
- */
 data class AddEditTaskState(
     val taskId: String? = null,
     val title: String = "",
