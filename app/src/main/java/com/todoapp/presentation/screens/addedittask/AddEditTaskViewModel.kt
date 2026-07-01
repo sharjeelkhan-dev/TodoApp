@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.todoapp.data.util.ReminderManager
 import com.todoapp.domain.model.SubTask
 import com.todoapp.domain.model.Task
+import com.todoapp.domain.model.TaskCategory
+import com.todoapp.domain.model.TaskPriority
 import com.todoapp.domain.repository.AuthRepository
 import com.todoapp.domain.usecase.AddTaskUseCase
 import com.todoapp.domain.usecase.DeleteTaskUseCase
@@ -41,6 +43,15 @@ class AddEditTaskViewModel @Inject constructor(
         val taskId = savedStateHandle.get<String>("taskId")
         if (taskId != null && (taskId != "new")) {
             loadTask(taskId)
+        } else {
+            // Set defaults immediately for new tasks
+            _state.update { 
+                it.copy(
+                    category = TaskCategory.OTHER, 
+                    priority = TaskPriority.MEDIUM,
+                    isInitializing = false
+                ) 
+            }
         }
     }
 
@@ -107,7 +118,6 @@ class AddEditTaskViewModel @Inject constructor(
 
     private fun loadTask(taskId: String) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             val task = getTaskByIdUseCase(taskId).firstOrNull()
             if (task != null) {
                 currentTask = task
@@ -123,11 +133,12 @@ class AddEditTaskViewModel @Inject constructor(
                         isReminderEnabled = task.isReminderEnabled,
                         subTasks = task.subTasks,
                         isEditing = true,
-                        isLoading = false
+                        isLoading = false,
+                        isInitializing = false
                     )
                 }
             } else {
-                _state.update { it.copy(isLoading = false) }
+                _state.update { it.copy(isLoading = false, isInitializing = false) }
             }
         }
     }
@@ -144,8 +155,8 @@ class AddEditTaskViewModel @Inject constructor(
                 id = taskId,
                 title = currentState.title.trim(),
                 description = currentState.description.trim(),
-                category = currentState.category,
-                priority = currentState.priority,
+                category = currentState.category ?: TaskCategory.OTHER,
+                priority = currentState.priority ?: TaskPriority.MEDIUM,
                 dueDate = currentState.dueDate,
                 dueTime = currentState.dueTime,
                 isReminderEnabled = currentState.isReminderEnabled,

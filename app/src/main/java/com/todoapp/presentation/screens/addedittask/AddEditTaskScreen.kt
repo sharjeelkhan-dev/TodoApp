@@ -1,5 +1,9 @@
 package com.todoapp.presentation.screens.addedittask
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -42,12 +46,14 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -84,14 +90,14 @@ fun AddEditTaskScreen(
         initialMinute = state.dueTime?.split(":")?.getOrNull(1)?.toIntOrNull() ?: 0
     )
 
-    val categoryColor = getCategoryColor(state.category)
-    val bgColor = if (isDarkMode) Color(0xFF1C1B21) else Color(0xFFFBFBF9)
-    val cardColor = if (isDarkMode) Color(0xFF231F26) else Color(0xFFF5F5F7)
-    val cardBorderColor = if (isDarkMode) Color.White.copy(alpha = 0.03f) else Color.Black.copy(alpha = 0.05f)
-    val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
-    val secondaryText = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B)
+    // Optimized colors: Calculate once and remember
+    val bgColor = remember(isDarkMode) { if (isDarkMode) Color(0xFF1C1B21) else Color(0xFFFBFBF9) }
+    val cardColor = remember(isDarkMode) { if (isDarkMode) Color(0xFF231F26) else Color(0xFFF5F5F7) }
+    val cardBorderColor = remember(isDarkMode) { if (isDarkMode) Color.White.copy(alpha = 0.03f) else Color.Black.copy(alpha = 0.05f) }
+    val primaryText = remember(isDarkMode) { if (isDarkMode) Color.White else Color(0xFF1A1A1A) }
+    val secondaryText = remember(isDarkMode) { if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B) }
     val brandColor = Color(0xFF7B61FF)
-    val dividerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFEEEEEE)
+    val dividerColor = remember(isDarkMode) { if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFEEEEEE) }
 
     val categoryRows = remember { 
         listOf(
@@ -100,17 +106,32 @@ fun AddEditTaskScreen(
         )
     }
 
+    // Alpha transition for the entire content (Much smoother than AnimatedVisibility)
+    val contentAlpha by animateFloatAsState(
+        targetValue = if (state.isInitializing) 0f else 1f,
+        animationSpec = tween(durationMillis = 350),
+        label = "contentAlpha"
+    )
+
     LaunchedEffect(state.isSaved) {
         if (state.isSaved) onNavigateBack()
+    }
+
+    LaunchedEffect(state.dueDate) {
+        state.dueDate?.let {
+            datePickerState.selectedDateMillis = it.time
+        }
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = bgColor
     ) { paddingValues ->
+        // Keep the content always in the tree to prevent "shifting"
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .graphicsLayer { alpha = contentAlpha }
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -250,16 +271,12 @@ fun AddEditTaskScreen(
                 }
             }
 
-            HorizontalDivider(color = dividerColor.copy(alpha = 0.5f),
-                thickness = 1.dp)
+            HorizontalDivider(color = dividerColor.copy(alpha = 0.5f), thickness = 1.dp)
 
-            Text(stringResource(R.string.category_label), color = secondaryText,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.category_label), color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 categoryRows.forEach { rowCategories ->
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         rowCategories.forEach { category ->
                             CategoryItem(
                                 category = category,
@@ -275,17 +292,12 @@ fun AddEditTaskScreen(
                 }
             }
 
-            Text(stringResource(R.string.priority_label), color = secondaryText,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold)
-            Row(modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(stringResource(R.string.priority_label), color = secondaryText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 TaskPriority.entries.forEach { priority ->
                     PriorityChip(priority = priority,
                         isSelected = state.priority == priority,
-                        cardColor = if (isDarkMode)
-                            Color(0xFF1E1E1E) else
-                                Color.White,
+                        cardColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White,
                         secondaryText = secondaryText,
                         dividerColor = dividerColor,
                         modifier = Modifier.weight(1f),
@@ -336,7 +348,7 @@ fun AddEditTaskScreen(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                state.subTasks.forEachIndexed { index, subTask ->
+                state.subTasks.forEach { subTask ->
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -348,7 +360,6 @@ fun AddEditTaskScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            
                             Box(modifier = Modifier.weight(1f)) {
                                 if (subTask.title.isEmpty()) {
                                     Text(
@@ -371,7 +382,6 @@ fun AddEditTaskScreen(
                                     cursorBrush = SolidColor(brandColor)
                                 )
                             }
-
                             IconButton(
                                 onClick = { onEvent(AddEditTaskEvent.RemoveSubTask(subTask.id)) },
                                 modifier = Modifier.size(24.dp)
@@ -458,18 +468,37 @@ fun CategoryItem(
         TaskCategory.SHOPPING -> R.drawable.shop
         TaskCategory.FINANCE -> R.drawable.money_cash_bag_dollar_bag_payment_cash_money_finance
         TaskCategory.HOME -> R.drawable.home
-        TaskCategory.OTHER -> R.drawable.star
+        TaskCategory.OTHER -> R.drawable.plastic_recycling_code_number_7_icon
     }
     val tint = getCategoryColor(category)
     val selectedBg = tint.copy(alpha = 0.15f)
+    
+    val animatedBgColor by animateColorAsState(
+        targetValue = if (isSelected) selectedBg else cardColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "bgColor"
+    )
+    
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (isSelected) tint else dividerColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "borderColor"
+    )
+    
+    val animatedBorderWidth by animateDpAsState(
+        targetValue = if (isSelected) 2.dp else 1.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "borderWidth"
+    )
+
     Surface(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) selectedBg else cardColor,
+        color = animatedBgColor,
         border = BorderStroke(
-            width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) tint else dividerColor
+            width = animatedBorderWidth,
+            color = animatedBorderColor
         ),
         shadowElevation = 0.dp
     ) {
@@ -505,14 +534,32 @@ fun PriorityChip(
     val color = getPriorityColor(priority)
     val selectedBg = color.copy(alpha = 0.15f)
     
+    val animatedBgColor by animateColorAsState(
+        targetValue = if (isSelected) selectedBg else cardColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "priorityBg"
+    )
+    
+    val animatedBorderColor by animateColorAsState(
+        targetValue = if (isSelected) color else dividerColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "priorityBorder"
+    )
+    
+    val animatedBorderWidth by animateDpAsState(
+        targetValue = if (isSelected) 1.5.dp else 1.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = "priorityWidth"
+    )
+    
     Surface(
         onClick = onClick,
         modifier = modifier.height(46.dp),
         shape = RoundedCornerShape(20.dp),
-        color = if (isSelected) selectedBg else cardColor,
+        color = animatedBgColor,
         border = BorderStroke(
-            width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) color else dividerColor
+            width = animatedBorderWidth,
+            color = animatedBorderColor
         ),
         shadowElevation = 0.dp
     ) {
@@ -588,7 +635,8 @@ fun AddEditTaskScreenPreviewLight() {
                 dueDate = Date(),
                 dueTime = "14:30",
                 isReminderEnabled = true,
-                isEditing = true
+                isEditing = true,
+                isInitializing = false
             ),
             isDarkMode = false,
             onEvent = {},
@@ -597,7 +645,6 @@ fun AddEditTaskScreenPreviewLight() {
     }
 }
 
-@Preview(showBackground = true, name = "Single Sub-task Card")
 @Preview(showBackground = true, name = "Single Sub-task Card")
 @Composable
 fun SingleSubTaskPreview() {
@@ -647,7 +694,8 @@ fun AddSubTaskSectionPreview() {
                         SubTask(title = "Task 2: Development", isCompleted = false),
                         SubTask(title = "Task 3: Testing", isCompleted = false)
                     ),
-                    isEditing = true
+                    isEditing = true,
+                    isInitializing = false
                 ),
                 isDarkMode = false,
                 onEvent = {},

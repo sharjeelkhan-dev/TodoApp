@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,10 +22,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
@@ -34,12 +32,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarDuration
@@ -65,7 +61,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,7 +77,6 @@ import com.todoapp.presentation.screens.tasklist.components.SortBottomSheet
 import com.todoapp.presentation.screens.tasklist.components.TaskCard
 import com.todoapp.presentation.theme.PoppinsFontFamily
 import com.todoapp.presentation.theme.TodoAppTheme
-import androidx.compose.ui.text.TextStyle
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -103,13 +100,10 @@ fun TaskListScreen(
     val primaryText = if (isDarkMode) Color.White else Color(0xFF1A1A1A)
     val cardBg = if (isDarkMode) Color(0xFF231F26) else Color.White
     val bgColor = if (isDarkMode) Color(0xFF1C1B21) else Color(0xFFFBFBF9)
-    
     val searchFocusRequester = remember { FocusRequester() }
-
     val activeTasks = remember(state.tasks) { state.tasks.filter { !it.isCompleted } }
     val completedTasks = remember(state.tasks) { state.tasks.filter { it.isCompleted } }
     val isListEmpty = state.tasks.isEmpty() && !state.isLoading
-
     val taskDeletedMessage = stringResource(R.string.task_deleted)
     val undoLabel = stringResource(R.string.undo)
 
@@ -155,12 +149,15 @@ fun TaskListScreen(
     if (state.isSearchActive) {
         Dialog(
             onDismissRequest = { onEvent(TaskListEvent.ToggleSearch) },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
+                    .background(Color.Black.copy(alpha = 0.4f))
                     .clickable { onEvent(TaskListEvent.ToggleSearch) }
                     .safeDrawingPadding(),
                 contentAlignment = Alignment.TopCenter
@@ -170,10 +167,15 @@ fun TaskListScreen(
                     onValueChange = { onEvent(TaskListEvent.SearchQueryChanged(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
+                        .padding(horizontal = 20.dp, vertical = 16.dp)
                         .focusRequester(searchFocusRequester)
-                        .clickable(enabled = false) { }, // Prevent dismissing when clicking the bar itself
-                    placeholder = { Text(stringResource(R.string.search_tasks_hint)) },
+                        .clickable(enabled = false) { },
+                    placeholder = { 
+                        Text(
+                            stringResource(R.string.search_tasks_hint),
+                            style = TextStyle(fontFamily = PoppinsFontFamily)
+                        ) 
+                    },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = brandColor) },
                     trailingIcon = {
                         IconButton(onClick = { 
@@ -190,6 +192,7 @@ fun TaskListScreen(
                     },
                     shape = RoundedCornerShape(24.dp),
                     singleLine = true,
+                    textStyle = TextStyle(fontFamily = PoppinsFontFamily, color = primaryText, fontSize = 16.sp),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(
                         onSearch = { onEvent(TaskListEvent.ToggleSearch) }
@@ -199,8 +202,7 @@ fun TaskListScreen(
                         unfocusedBorderColor = Color.Transparent,
                         focusedContainerColor = cardBg,
                         unfocusedContainerColor = cardBg,
-                        focusedTextColor = primaryText,
-                        unfocusedTextColor = primaryText
+                        cursorColor = brandColor
                     )
                 )
             }

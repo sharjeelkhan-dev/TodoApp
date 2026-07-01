@@ -13,8 +13,8 @@ data class AddEditTaskState(
     val taskId: String? = null,
     val title: String = "",
     val description: String = "",
-    val category: TaskCategory = TaskCategory.OTHER,
-    val priority: TaskPriority = TaskPriority.MEDIUM,
+    val category: TaskCategory? = null,
+    val priority: TaskPriority? = null,
     val dueDate: Date? = null,
     val dueTime: String? = null,
     val isEditing: Boolean = false,
@@ -24,6 +24,7 @@ data class AddEditTaskState(
     val showDatePicker: Boolean = false,
     val showTimePicker: Boolean = false,
     val isReminderEnabled: Boolean = false,
+    val isInitializing: Boolean = true,
     val subTasks: List<SubTask> = emptyList()
 )
 
