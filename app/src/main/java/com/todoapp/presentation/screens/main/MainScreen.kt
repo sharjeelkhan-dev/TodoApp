@@ -86,6 +86,12 @@ fun MainContent(
                 containerColor = brandColor,
                 contentColor = Color.White,
                 shape = androidx.compose.foundation.shape.CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 12.dp,
+                    hoveredElevation = 10.dp,
+                    focusedElevation = 10.dp
+                ),
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(bottom = 16.dp, end = 8.dp)

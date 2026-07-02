@@ -409,7 +409,13 @@ fun AddEditTaskScreen(
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(20.dp),
-                enabled = !state.isLoading
+                enabled = !state.isLoading,
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 8.dp,
+                    pressedElevation = 10.dp,
+                    hoveredElevation = 9.dp,
+                    focusedElevation = 9.dp
+                )
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
@@ -505,10 +511,17 @@ fun CategoryItem(
         Column(modifier = Modifier.padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Icon(painter = painterResource(id = iconRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = tint)
+            Box(
+                modifier = Modifier.size(30.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = tint
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = category.label,
                 color = if (isSelected) tint

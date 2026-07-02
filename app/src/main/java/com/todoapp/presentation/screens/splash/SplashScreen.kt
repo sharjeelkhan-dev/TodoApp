@@ -7,13 +7,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +43,7 @@ import com.todoapp.R
 import com.todoapp.presentation.theme.TodoAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(
@@ -61,16 +65,16 @@ fun SplashScreen(
             logoScale.animateTo(1f, animationSpec = tween(durationMillis = 800))
         }
         launch {
-            delay(400)
+            delay(400.milliseconds)
             badgesAlpha.animateTo(1f, animationSpec = tween(durationMillis = 1000))
         }
         launch {
             for (i in 1..100) {
                 progressAnim.snapTo(i / 100f)
-                delay(30)
+                delay(30.milliseconds)
             }
         }
-        delay(3500)
+        delay(3500.milliseconds)
         onNavigateToHome()
     }
 
@@ -93,16 +97,19 @@ fun SplashScreenContent(
     tasksCount: Int,
     doneCount: Int
 ) {
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
     // --- Customizable Offsets for Floating Cards ---
     val card1OffsetX = 30.dp
     val card1OffsetY = (-250).dp
-    
+
     val card2OffsetX = (-20).dp
     val card2OffsetY = (-270).dp
-    
+
     val card3OffsetX = 15.dp
     val card3OffsetY = (-80).dp
-    
+
     val card4OffsetX = (-30).dp
     val card4OffsetY = (-10).dp
 
@@ -116,159 +123,155 @@ fun SplashScreenContent(
             .fillMaxSize()
             .background(bgColor)
     ) {
-        Box(
+        // --- Floating Cards (Background Layer) ---
+        Box(modifier = Modifier.fillMaxSize().alpha(badgesAlpha)) {
+            FloatingCard(
+                iconColor = Color(0xFFE91E63),
+                isDarkMode = isDarkMode,
+                modifier = Modifier.align(Alignment.CenterStart).offset(x = card1OffsetX, y = card1OffsetY)
+            )
+            FloatingCard(
+                iconColor = Color(0xFF4CAF50),
+                isDarkMode = isDarkMode,
+                modifier = Modifier.align(Alignment.CenterEnd).offset(x = card2OffsetX, y = card2OffsetY)
+            )
+            FloatingCard(
+                iconColor = Color(0xFF7B61FF),
+                isDarkMode = isDarkMode,
+                modifier = Modifier.align(Alignment.CenterStart).offset(x = card3OffsetX, y = card3OffsetY)
+            )
+            FloatingCard(
+                iconColor = Color(0xFFFF9800),
+                isDarkMode = isDarkMode,
+                modifier = Modifier.align(Alignment.CenterEnd).offset(x = card4OffsetX, y = card4OffsetY)
+            )
+        }
+
+        // --- Center Content ---
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding(),
-            contentAlignment = Alignment.Center
+                .padding(top = statusBarPadding, bottom = navBarPadding + 64.dp)
+                .alpha(logoAlpha),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // --- Floating Cards ---
-            Box(modifier = Modifier.fillMaxSize().alpha(badgesAlpha)) {
-                FloatingCard(
-                    iconColor = Color(0xFFE91E63),
-                    modifier = Modifier.align(Alignment.CenterStart).offset(x = card1OffsetX, y = card1OffsetY)
-                )
-                FloatingCard(
-                    iconColor = Color(0xFF4CAF50),
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(x = card2OffsetX, y = card2OffsetY)
-                )
-                FloatingCard(
-                    iconColor = Color(0xFF7B61FF),
-                    modifier = Modifier.align(Alignment.CenterStart).offset(x = card3OffsetX, y = card3OffsetY)
-                )
-                FloatingCard(
-                    iconColor = Color(0xFFFF9800),
-                    modifier = Modifier.align(Alignment.CenterEnd).offset(x = card4OffsetX, y = card4OffsetY)
-                )
-            }
-
-            // --- Center Content ---
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.alpha(logoAlpha)
+            // Main App Icon
+            Box(
+                contentAlignment = Alignment.Center
             ) {
-                // Main App Icon
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .shadow(16.dp, RoundedCornerShape(40.dp))
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(Color(0xFF6C52EE), Color(0xFF8E75FF)),
-                                    start = Offset.Zero,
-                                    end = Offset.Infinite
-                                ),
-                                shape = RoundedCornerShape(40.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource
-                                (id = R.drawable.notepad_icon),
-                            contentDescription = "Logo",
-                            tint = Color.White,
-                            modifier = Modifier.size(64.dp)
-                        )
-                    }
-
-                    // Notification Badge
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .offset(x = 6.dp, y = (-8).dp)
-                            .size(32.dp)
-                            .background(Color(0xFFE53935),
-                                CircleShape)
-                            .shadow(4.dp, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("3", color = Color.White, fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // App Name
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        modifier = Modifier.offset(y = 60.dp),
-                        text = stringResource(R.string.my),
-                        fontSize = 42.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = textColor
-                    )
-                    Text(
-                        modifier = Modifier.offset(y = 60.dp),
-                        text = stringResource(R.string.tasks),
-                        fontSize = 42.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = primaryColor
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Subtitle
-                Text(modifier = Modifier.offset(y = 50.dp),
-                    text = stringResource(R.string.splash_subtitle),
-                    fontSize = 16.sp,
-                    color = subTextColor,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.height(64.dp))
-
-                // Progress Bar
                 Box(
                     modifier = Modifier
-                        .width(200.dp)
-                        .height(6.dp)
-                        .background(primaryColor.copy(alpha = 0.1f), CircleShape)
+                        .size(120.dp)
+                        .shadow(16.dp, RoundedCornerShape(40.dp))
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(Color(0xFF6C52EE), Color(0xFF8E75FF)),
+                                start = Offset.Zero,
+                                end = Offset.Infinite
+                            ),
+                            shape = RoundedCornerShape(40.dp)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progress)
-                            .height(6.dp)
-                            .background(primaryColor,
-                                CircleShape)
+                    Icon(
+                        painter = painterResource(id = R.drawable.notepad_icon),
+                        contentDescription = "Logo",
+                        tint = Color.White,
+                        modifier = Modifier.size(64.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // Notification Badge
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 6.dp, y = (-8).dp)
+                        .size(32.dp)
+                        .background(Color(0xFFE53935), CircleShape)
+                        .shadow(4.dp, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("3", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
+            }
 
-                Text(modifier = Modifier.offset(y = (-10).dp),
-                    text = stringResource(R.string.almost_ready),
-                    fontSize = 14.sp,
-                    color = subTextColor
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // App Name
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.my),
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = textColor
+                )
+                Text(
+                    text = stringResource(R.string.tasks),
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = primaryColor
                 )
             }
 
-            // --- Bottom Stats ---
-            Row(
+            // Subtitle
+            Text(
+                text = stringResource(R.string.splash_subtitle),
+                fontSize = 16.sp,
+                color = subTextColor,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Progress Bar
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(bottom = 64.dp, start = 32.dp, end = 32.dp)
-                    .alpha(logoAlpha),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .width(200.dp)
+                    .height(6.dp)
+                    .background(primaryColor.copy(alpha = 0.1f), CircleShape)
             ) {
-                StatCard(tasksCount.toString(), stringResource(R.string.tasks_upper), Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
-                StatCard(doneCount.toString(), stringResource(R.string.done_upper), Color(0xFF009688), isDarkMode, Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .height(6.dp)
+                        .background(primaryColor, CircleShape)
+                )
             }
+
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = stringResource(R.string.almost_ready),
+                fontSize = 14.sp,
+                color = subTextColor
+            )
+        }
+
+        // --- Bottom Stats ---
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(bottom = navBarPadding + 32.dp)
+                .padding(horizontal = 32.dp)
+                .alpha(logoAlpha),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            StatCard(tasksCount.toString(), stringResource(R.string.tasks_upper), Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
+            StatCard(doneCount.toString(), stringResource(R.string.done_upper), Color(0xFF009688), isDarkMode, Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-fun FloatingCard(iconColor: Color, modifier: Modifier = Modifier) {
+fun FloatingCard(iconColor: Color, isDarkMode: Boolean, modifier: Modifier = Modifier) {
+    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
+    val secondaryBg = if (isDarkMode) Color(0xFF2D2D2D) else Color(0xFFF0F0F0)
+    
     Surface(
         shape = RoundedCornerShape(16.dp),
-        shadowElevation = 12.dp,
-        color = Color.White,
+        shadowElevation = if (isDarkMode) 2.dp else 12.dp,
+        color = cardBg,
         modifier = modifier
             .offset(y = (-35).dp)
             .size(width = 110.dp, height = 44.dp)
@@ -288,13 +291,13 @@ fun FloatingCard(iconColor: Color, modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .height(5.dp)
                         .width(50.dp)
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(2.dp))
+                        .background(secondaryBg, RoundedCornerShape(2.dp))
                 )
                 Box(
                     modifier = Modifier
                         .height(5.dp)
                         .width(30.dp)
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(2.dp))
+                        .background(secondaryBg, RoundedCornerShape(2.dp))
                 )
             }
         }

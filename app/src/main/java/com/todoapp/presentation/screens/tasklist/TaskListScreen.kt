@@ -138,6 +138,7 @@ fun TaskListScreen(
     if (state.showFilterSheet) {
         SortBottomSheet(
             selectedSortOrder = state.filter.sortOrder,
+            isDarkMode = isDarkMode,
             onSortOrderSelected = { order ->
                 onEvent(TaskListEvent.SortBy(order))
             },
@@ -379,7 +380,13 @@ fun TaskListScreen(
                             modifier = Modifier.height(48.dp),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = brandColor),
-                            enabled = aiPrompt.isNotBlank()
+                            enabled = aiPrompt.isNotBlank(),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 6.dp,
+                                pressedElevation = 8.dp,
+                                hoveredElevation = 7.dp,
+                                focusedElevation = 7.dp
+                            )
                         ) {
                             Text(
                                 stringResource(R.string.execute),
@@ -569,7 +576,7 @@ private fun HeaderTopRow(
 
         Row(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
             ActionButton(
-                imageVector = Icons.Default.AutoAwesome,
+                iconRes = R.drawable.ai_sparkles_icon,
                 isDarkMode = isDarkMode,
                 cardBg = cardBg,
                 tint = brandColor,
