@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -276,7 +275,9 @@ fun TaskListScreen(
                                 .background(brandColor.copy(alpha = 0.1f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.AutoAwesome, null, tint = brandColor, modifier = Modifier.size(20.dp))
+                            Icon(painter = painterResource(id = R.drawable.ai_sparkles_icon),
+                                null, tint = brandColor,
+                                modifier = Modifier.size(20.dp))
                         }
                         Text(
                             text = stringResource(R.string.ai_task_assistant),
@@ -754,6 +755,27 @@ private fun SectionHeader(title: String, color: Color) {
         modifier = Modifier
             .padding(top = 5.dp,
                 bottom = 4.dp))
+}
+
+@Preview(showBackground = true, name = "AI Assistant Dialog")
+@Composable
+fun AIAssistantDialogPreview() {
+    TodoAppTheme {
+        TaskListScreen(
+            state = TaskListState(
+                isAICommandDialogOpen = true,
+                tasks = listOf(
+                    Task(id = "1", title = "Task 1"),
+                    Task(id = "2", title = "Task 2")
+                )
+            ),
+            isDarkMode = false,
+            onEvent = {},
+            onNavigateToEditTask = {},
+            onNavigateToSettings = {},
+            snackbarHostState = remember { SnackbarHostState() }
+        )
+    }
 }
 
 @Preview(showBackground = true)

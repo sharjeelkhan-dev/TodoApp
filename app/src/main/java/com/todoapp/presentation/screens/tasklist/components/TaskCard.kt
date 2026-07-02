@@ -209,15 +209,54 @@ fun TaskCard(
                             )
                         }
 
-                        IconButton(
-                            onClick = { showMenu = true },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreHoriz,
-                                contentDescription = "Menu",
-                                tint = secondaryText.copy(alpha = 0.7f)
-                            )
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreHoriz,
+                                    contentDescription = "Menu",
+                                    tint = secondaryText.copy(alpha = 0.7f)
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                                modifier = Modifier.background(
+                                    if (isDarkMode) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
+                                )
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.edit_task)) },
+                                    onClick = {
+                                        showMenu = false
+                                        onClick()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.comment_blog_icon),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.delete_task)) },
+                                    onClick = {
+                                        showMenu = false
+                                        onDelete()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.recycle_bin_icon),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
 
@@ -387,42 +426,6 @@ fun TaskCard(
                     }
                 }
             }
-        }
-
-        DropdownMenu(
-            expanded = showMenu,
-            onDismissRequest = { showMenu = false },
-            modifier = Modifier.background(if (isDarkMode)
-                Color(0xFF1E1E1E) else Color(0xFFFFFFFF))
-        ) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.edit_task)) },
-                onClick = {
-                    showMenu = false
-                    onClick()
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.comment_blog_icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.delete_task)) },
-                onClick = {
-                    showMenu = false
-                    onDelete()
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.recycle_bin_icon),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            )
         }
     }
 }

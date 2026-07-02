@@ -1,5 +1,12 @@
 package com.todoapp.presentation.screens.splash
+
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,12 +41,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.presentation.theme.TodoAppTheme
 import kotlinx.coroutines.delay
@@ -55,26 +64,46 @@ fun SplashScreen(
     val progressAnim = remember { Animatable(0f) }
     val badgesAlpha = remember { Animatable(0f) }
     val logoAlpha = remember { Animatable(0f) }
-    val logoScale = remember { Animatable(0.8f) }
+    val logoScale = remember { Animatable(0.5f) }
+    
+    val infiniteTransition = rememberInfiniteTransition(label = "ambient")
+    val driftY by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "driftY"
+    )
 
     LaunchedEffect(key1 = true) {
         launch {
-            logoAlpha.animateTo(1f, animationSpec = tween(durationMillis = 800))
+            logoAlpha.animateTo(1f, animationSpec = tween(1000, easing = FastOutSlowInEasing))
         }
         launch {
-            logoScale.animateTo(1f, animationSpec = tween(durationMillis = 800))
+            logoScale.animateTo(
+                targetValue = 1f, 
+                animationSpec = tween(1200, easing = { fraction -> 
+                    // Overshoot effect
+                    val s = 1.70158f
+                    val t = fraction - 1.0f
+                    t * t * ((s + 1) * t + s) + 1.0f
+                })
+            )
         }
         launch {
-            delay(400.milliseconds)
-            badgesAlpha.animateTo(1f, animationSpec = tween(durationMillis = 1000))
+            delay(500.milliseconds)
+            badgesAlpha.animateTo(1f, animationSpec = tween(1500, easing = FastOutSlowInEasing))
         }
         launch {
+            delay(800.milliseconds)
             for (i in 1..100) {
                 progressAnim.snapTo(i / 100f)
-                delay(30.milliseconds)
+                delay(25.milliseconds)
             }
         }
-        delay(3500.milliseconds)
+        delay(4000.milliseconds)
         onNavigateToHome()
     }
 
@@ -83,6 +112,8 @@ fun SplashScreen(
         progress = progressAnim.value,
         badgesAlpha = badgesAlpha.value,
         logoAlpha = logoAlpha.value,
+        logoScale = logoScale.value,
+        driftY = driftY,
         tasksCount = tasksCount,
         doneCount = doneCount
     )
@@ -94,6 +125,8 @@ fun SplashScreenContent(
     progress: Float,
     badgesAlpha: Float,
     logoAlpha: Float,
+    logoScale: Float,
+    driftY: Float,
     tasksCount: Int,
     doneCount: Int
 ) {
@@ -124,26 +157,34 @@ fun SplashScreenContent(
             .background(bgColor)
     ) {
         // --- Floating Cards (Background Layer) ---
-        Box(modifier = Modifier.fillMaxSize().alpha(badgesAlpha)) {
+        Box(modifier = Modifier.fillMaxSize().alpha(badgesAlpha * 0.6f)) {
             FloatingCard(
                 iconColor = Color(0xFFE91E63),
                 isDarkMode = isDarkMode,
-                modifier = Modifier.align(Alignment.CenterStart).offset(x = card1OffsetX, y = card1OffsetY)
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = card1OffsetX, y = card1OffsetY + driftY.dp)
             )
             FloatingCard(
                 iconColor = Color(0xFF4CAF50),
                 isDarkMode = isDarkMode,
-                modifier = Modifier.align(Alignment.CenterEnd).offset(x = card2OffsetX, y = card2OffsetY)
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = card2OffsetX, y = card2OffsetY - driftY.dp)
             )
             FloatingCard(
                 iconColor = Color(0xFF7B61FF),
                 isDarkMode = isDarkMode,
-                modifier = Modifier.align(Alignment.CenterStart).offset(x = card3OffsetX, y = card3OffsetY)
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset(x = card3OffsetX, y = card3OffsetY + (driftY * 0.5f).dp)
             )
             FloatingCard(
                 iconColor = Color(0xFFFF9800),
                 isDarkMode = isDarkMode,
-                modifier = Modifier.align(Alignment.CenterEnd).offset(x = card4OffsetX, y = card4OffsetY)
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = card4OffsetX, y = card4OffsetY - (driftY * 0.5f).dp)
             )
         }
 
@@ -152,7 +193,11 @@ fun SplashScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = statusBarPadding, bottom = navBarPadding + 64.dp)
-                .alpha(logoAlpha),
+                .graphicsLayer {
+                    alpha = logoAlpha
+                    scaleX = logoScale
+                    scaleY = logoScale
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -163,7 +208,7 @@ fun SplashScreenContent(
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .shadow(16.dp, RoundedCornerShape(40.dp))
+                        .shadow(24.dp, RoundedCornerShape(40.dp), spotColor = primaryColor)
                         .background(
                             brush = Brush.linearGradient(
                                 colors = listOf(Color(0xFF6C52EE), Color(0xFF8E75FF)),
@@ -257,8 +302,10 @@ fun SplashScreenContent(
                 .alpha(logoAlpha),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StatCard(tasksCount.toString(), stringResource(R.string.tasks_upper), Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
-            StatCard(doneCount.toString(), stringResource(R.string.done_upper), Color(0xFF009688), isDarkMode, Modifier.weight(1f))
+            StatCard(tasksCount.toString(), stringResource(R.string.tasks_upper),
+                Color(0xFF3F51B5), isDarkMode, Modifier.weight(1f))
+            StatCard(doneCount.toString(), stringResource(R.string.done_upper),
+                Color(0xFF009688), isDarkMode, Modifier.weight(1f))
         }
     }
 }
@@ -347,6 +394,8 @@ fun SplashScreenLightPreview() {
             progress = 0.7f,
             badgesAlpha = 1f,
             logoAlpha = 1f,
+            logoScale = 1f,
+            driftY = 0f,
             tasksCount = 12,
             doneCount = 8
         )
@@ -362,6 +411,8 @@ fun SplashScreenDarkPreview() {
             progress = 0.7f,
             badgesAlpha = 1f,
             logoAlpha = 1f,
+            logoScale = 1f,
+            driftY = 0f,
             tasksCount = 12,
             doneCount = 8
         )
