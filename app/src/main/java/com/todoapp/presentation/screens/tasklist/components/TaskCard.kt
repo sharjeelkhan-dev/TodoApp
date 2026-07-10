@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -96,6 +97,9 @@ fun TaskCard(
     initiallyExpanded: Boolean = false
 ) {
     val categoryColor = getCategoryColor(task.category)
+    val iconColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+
+
 
     // --- Premium Animations ---
     val completionProgress by animateFloatAsState(
@@ -322,7 +326,7 @@ fun TaskCard(
                                     Icon(
                                         painter = painterResource(id = R.drawable.chevron_direction_bottom_round_outline_icon),
                                         contentDescription = "Show sub-tasks",
-                                        tint = secondaryText.copy(alpha = 0.7f),
+                                        tint = iconColor.copy(alpha = 0.7f),
                                         modifier = Modifier
                                             .size(16.dp)
                                             .graphicsLayer { rotationZ = arrowRotation }
