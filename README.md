@@ -5,7 +5,7 @@
 
 | Subsystem | Technical Execution Architecture |
 | :--- | :--- |
-| 🤖 **AI-Powered Commands** | Manage your tasks using natural language (e.g., *"Add a task to buy groceries at 5 PM"*), and let Gemini 2.0 handle the rest. |
+| 🤖 **AI-Powered Commands** | Manage your tasks using natural language (e.g., *"Add a task to buy groceries at 5 PM"*), and let Gemini 3.5-Flash handle the rest. |
 | 🧠 **Smart Prioritization** | An AI-driven engine that analyzes task deadlines, priorities, and descriptions to calculate a "Smart Score" (0-100). |
 | 🔄 **Seamless Cloud Sync** | Offline-first architecture using Room Database with real-time cloud synchronization via Firebase Firestore. |
 | 📅 **Smart Reminders** | Intelligent notification system powered by WorkManager to ensure you never miss a deadline. |
