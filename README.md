@@ -38,4 +38,3 @@
 - Android Studio Ladybug (or newer)
 - A Google Gemini API Key
 - Firebase Project setup
-<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/b7221718-5b21-4b03-8c5d-4052fbd0b487" />
