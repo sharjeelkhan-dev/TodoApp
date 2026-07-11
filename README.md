@@ -17,7 +17,7 @@
 <br/>
 <table width="100%">
  <tr>
-   <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/0687323d-7c9c-42cd-adef-e3a5af4370b3" width="100%" alt="Screen 1 (Splash)" /></td>
+   <td width="33.3%" align="center"> <img src="https://github.com/user-attachments/assets/b7221718-5b21-4b03-8c5d-4052fbd0b487" width="100%" alt="Screen 1 (Splash)" /></td>
    <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/88d00193-695e-4713-b450-014b26e70ca4" width="100%" alt="Screen 2 (Home)" /></td>
    <td width="33.3%" align="center"><img src="https://github.com/user-attachments/assets/8c816a1b-0fa2-40d0-bf6c-4bcee829c79b" width="100%" alt="Screen 3 (Edit)" /></td>
  </tr>
@@ -32,3 +32,4 @@
 - Android Studio Ladybug (or newer)
 - A Google Gemini API Key
 - Firebase Project setup
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/b7221718-5b21-4b03-8c5d-4052fbd0b487" />
