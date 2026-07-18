@@ -18,13 +18,13 @@
 <table width="100%">
   <tr>
     <td width="33.3%" align="center">
-      <img src="https://github.com/user-attachments/assets/b7221718-5b21-4b03-8c5d-4052fbd0b487" width="100%" alt="Screen 1 (Splash)" />
+      <img src="https://github.com/user-attachments/assets/bda5695a-e4d5-4f60-be29-2e5e55e97102" width="100%" alt="Screen 1 (Splash)" />
     </td>
     <td width="33.3%" align="center">
-      <img src="https://github.com/user-attachments/assets/88d00193-695e-4713-b450-014b26e70ca4" width="100%" alt="Screen 2 (Home)" />
+      <img src="https://github.com/user-attachments/assets/ba111a94-3375-44c8-bffd-12b5e0c8cdb5" width="100%" alt="Screen 2 (Home)" />
     </td>
     <td width="33.3%" align="center">
-      <img src="https://github.com/user-attachments/assets/8c816a1b-0fa2-40d0-bf6c-4bcee829c79b" width="100%" alt="Screen 3 (Edit)" />
+      <img src="https://github.com/user-attachments/assets/999a334c-67b6-468a-9230-7731cff0692b" width="100%" alt="Screen 3 (Edit)" />
     </td>
   </tr>
 </table>
