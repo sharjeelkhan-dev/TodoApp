@@ -2,10 +2,8 @@ package com.todoapp.presentation.screens.tasklist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.todoapp.data.remote.VoiceToTextParser
 import com.todoapp.domain.model.SortOrder
-import com.todoapp.domain.model.Task
-import com.todoapp.domain.model.TaskCategory
-import com.todoapp.domain.model.TaskPriority
 import com.todoapp.domain.usecase.AddTaskUseCase
 import com.todoapp.domain.usecase.DeleteTaskUseCase
 import com.todoapp.domain.usecase.GetSmartPrioritizationUseCase
@@ -13,7 +11,6 @@ import com.todoapp.domain.usecase.GetTasksUseCase
 import com.todoapp.domain.usecase.ProcessAICommandUseCase
 import com.todoapp.domain.usecase.SearchTasksUseCase
 import com.todoapp.domain.usecase.ToggleTaskCompletionUseCase
-import com.todoapp.data.remote.VoiceToTextParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
