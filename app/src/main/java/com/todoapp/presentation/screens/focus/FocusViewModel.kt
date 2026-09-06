@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class SessionType(val durationMinutes: Int) {
     WORK(25),
@@ -97,7 +98,7 @@ class FocusViewModel @Inject constructor(
         _state.update { it.copy(timerRunning = true) }
         timerJob = viewModelScope.launch {
             while (_state.value.timeRemaining > 0) {
-                delay(1000)
+                delay(1000.milliseconds)
                 _state.update { it.copy(timeRemaining = it.timeRemaining - 1) }
             }
             onSessionComplete()
