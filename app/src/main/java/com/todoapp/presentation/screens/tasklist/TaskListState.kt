@@ -20,6 +20,9 @@ data class TaskListState(
     val error: String? = null,
     val recentlyDeletedTask: Task? = null,
     val showFilterSheet: Boolean = false,
+    val isListening: Boolean = false,
+    val voiceError: String? = null,
+    val rmsValue: Float = 0f,
 )
 
 /**
@@ -43,4 +46,6 @@ sealed class TaskListEvent {
     data object SmartPrioritize : TaskListEvent()
     data object ToggleAICommandDialog : TaskListEvent()
     data class ExecuteAICommand(val prompt: String) : TaskListEvent()
+    data object StartListening : TaskListEvent()
+    data object StopListening : TaskListEvent()
 }

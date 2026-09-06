@@ -13,6 +13,7 @@ import com.todoapp.domain.usecase.GetTasksUseCase
 import com.todoapp.domain.usecase.ProcessAICommandUseCase
 import com.todoapp.domain.usecase.SearchTasksUseCase
 import com.todoapp.domain.usecase.ToggleTaskCompletionUseCase
+import com.todoapp.data.remote.VoiceToTextParser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +37,7 @@ class TaskListViewModel @Inject constructor(
     private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
     private val getSmartPrioritizationUseCase: GetSmartPrioritizationUseCase,
     private val processAICommandUseCase: ProcessAICommandUseCase,
+    private val voiceToTextParser: VoiceToTextParser,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskListState())
@@ -45,6 +47,24 @@ class TaskListViewModel @Inject constructor(
 
     init {
         observeTasks()
+        observeVoiceParser()
+    }
+
+    private fun observeVoiceParser() {
+        viewModelScope.launch {
+            voiceToTextParser.state.collectLatest { voiceState ->
+                _state.update { 
+                    it.copy(
+                        isListening = voiceState.isSpeaking,
+                        voiceError = voiceState.error,
+                        rmsValue = voiceState.rmsValue
+                    )
+                }
+                if (voiceState.spokenText.isNotBlank()) {
+                    executeAICommand(voiceState.spokenText)
+                }
+            }
+        }
     }
 
     fun onEvent(event: TaskListEvent) {
@@ -129,6 +149,8 @@ class TaskListViewModel @Inject constructor(
                 _state.update { it.copy(isAICommandDialogOpen = !it.isAICommandDialogOpen) }
             }
             is TaskListEvent.ExecuteAICommand -> executeAICommand(event.prompt)
+            TaskListEvent.StartListening -> voiceToTextParser.startListening()
+            TaskListEvent.StopListening -> voiceToTextParser.stopListening()
         }
     }
 

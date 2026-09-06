@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
 
         scheduleSyncWorker()
         askNotificationPermission()
+        askRecordAudioPermission()
 
         analytics.logEvent(FirebaseAnalytics.Event.APP_OPEN, null)
 
@@ -69,6 +70,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+    }
+
+    private fun askRecordAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 

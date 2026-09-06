@@ -1,26 +1,9 @@
 package com.todoapp.presentation.screens.tasklist
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,29 +14,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,11 +23,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -240,7 +204,7 @@ fun TaskListScreen(
                         style = MaterialTheme.typography.labelLarge,
                         color = brandColor,
                         fontWeight = FontWeight.SemiBold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -301,27 +265,72 @@ fun TaskListScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Input Area
-                    OutlinedTextField(
-                        value = aiPrompt,
-                        onValueChange = { aiPrompt = it },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { 
-                            Text(
-                                stringResource(R.string.how_can_i_help),
-                                style = TextStyle(fontFamily = PoppinsFontFamily, fontSize = 14.sp)
-                            ) 
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        maxLines = 3,
-                        textStyle = TextStyle(fontFamily = PoppinsFontFamily, color = primaryText, fontSize = 15.sp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = brandColor,
-                            unfocusedBorderColor = secondaryText.copy(alpha = 0.2f),
-                            focusedContainerColor = bgColor.copy(alpha = 0.5f),
-                            unfocusedContainerColor = bgColor.copy(alpha = 0.5f),
-                            cursorColor = brandColor
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = aiPrompt,
+                            onValueChange = { aiPrompt = it },
+                            modifier = Modifier.weight(1f),
+                            placeholder = { 
+                                Text(
+                                    stringResource(R.string.how_can_i_help),
+                                    style = TextStyle(fontFamily = PoppinsFontFamily, fontSize = 14.sp)
+                                ) 
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            maxLines = 3,
+                            textStyle = TextStyle(fontFamily = PoppinsFontFamily, color = primaryText, fontSize = 15.sp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = brandColor,
+                                unfocusedBorderColor = secondaryText.copy(alpha = 0.2f),
+                                focusedContainerColor = bgColor.copy(alpha = 0.5f),
+                                unfocusedContainerColor = bgColor.copy(alpha = 0.5f),
+                                cursorColor = brandColor
+                            )
                         )
-                    )
+
+                        // Voice Button
+                        Box(contentAlignment = Alignment.Center) {
+                            if (state.isListening) {
+                                val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                                val scale by infiniteTransition.animateFloat(
+                                    initialValue = 1f,
+                                    targetValue = 1.5f,
+                                    animationSpec = infiniteRepeatable(
+                                        animation = tween(800),
+                                        repeatMode = RepeatMode.Reverse
+                                    ),
+                                    label = "scale"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(44.dp)
+                                        .graphicsLayer {
+                                            scaleX = scale
+                                            scaleY = scale
+                                        }
+                                        .background(brandColor.copy(alpha = 0.2f), CircleShape)
+                                )
+                            }
+                            
+                            IconButton(
+                                onClick = { 
+                                    if (state.isListening) onEvent(TaskListEvent.StopListening)
+                                    else onEvent(TaskListEvent.StartListening)
+                                },
+                            ){
+                                Icon(
+                                    painter = painterResource(id = R.drawable.voice_microphone_svgrepo_com),
+                                    contentDescription = "Voice Input",
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -490,7 +499,7 @@ fun TaskListScreen(
                         painter = painterResource(id = R.drawable.no_task_icon),
                         contentDescription = null,
                         modifier = Modifier.size(120.dp),
-                        tint = MaterialTheme.colorScheme.onBackground
+                        tint =  MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
