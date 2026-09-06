@@ -31,8 +31,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("debug")
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -56,6 +57,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.google.firebase.appcheck.debug)
     // Desugaring for Java 8+ time APIs
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 

@@ -141,7 +141,7 @@ fun TaskCard(
                     val end = timeFormat.format(calendar.time)
                     "$start - $end"
                 } else task.dueTime
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 task.dueTime
             }
         } else {
@@ -280,7 +280,7 @@ fun TaskCard(
                             textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null
                         )
 
-                        if (!task.description.isNullOrBlank()) {
+                        if (task.description.isNotBlank()) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = task.description,

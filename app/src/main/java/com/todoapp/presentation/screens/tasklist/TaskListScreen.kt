@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -270,9 +273,7 @@ fun TaskListScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(brandColor.copy(alpha = 0.1f), CircleShape),
+                            modifier = Modifier.size(24.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(painter = painterResource(id = R.drawable.ai_sparkles_icon),
@@ -406,7 +407,8 @@ fun TaskListScreen(
             .background(bgColor),
         state = listState,
         contentPadding = PaddingValues(
-            top = contentPadding.calculateTopPadding() + 16.dp,
+            top = contentPadding.calculateTopPadding() + 
+                  WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 16.dp,
             bottom = contentPadding.calculateBottomPadding() + 100.dp,
             start = 24.dp,
             end = 24.dp
@@ -488,7 +490,7 @@ fun TaskListScreen(
                         painter = painterResource(id = R.drawable.no_task_icon),
                         contentDescription = null,
                         modifier = Modifier.size(120.dp),
-                        tint = brandColor
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
@@ -545,7 +547,7 @@ private fun HeaderTopRow(
     onEvent: (TaskListEvent) -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("EEEE, d MMMM",
+    val dateFormat = remember { SimpleDateFormat("EEE, d MMM",
         Locale.getDefault()) }
     val today = dateFormat.format(Date())
 
@@ -559,23 +561,27 @@ private fun HeaderTopRow(
                 text = today.uppercase(),
                 style = MaterialTheme.typography.labelLarge.copy(
                     color = secondaryText,
-                    letterSpacing = 1.5.sp,
+                    letterSpacing = 0.5.sp, // Reduced letter spacing to fit more
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
-                )
+                    fontSize = 11.sp // Slightly smaller font
+                ),
+                maxLines = 1,
+                softWrap = false
             )
             Text(
                 text = stringResource(R.string.my_tasks),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Black,
                     color = primaryText,
-                    fontSize = 32.sp,
+                    fontSize = 28.sp, // Slightly smaller to prevent wrapping
                     letterSpacing = (-1).sp
-                )
+                ),
+                maxLines = 1,
+                softWrap = false
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { // Reduced spacing between buttons
             ActionButton(
                 iconRes = R.drawable.ai_sparkles_icon,
                 isDarkMode = isDarkMode,

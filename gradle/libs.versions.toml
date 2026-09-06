@@ -57,6 +57,7 @@ googleAuth = "21.6.0"
 credentialManager = "1.6.0"
 
 googleIdIdentity = "1.2.0"
+firebaseAppcheckDebug = "19.4.1"
 
 [libraries]
 
@@ -220,6 +221,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 # DataStore
 
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+google-firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug", version.ref = "firebaseAppcheckDebug" }
 
 
 

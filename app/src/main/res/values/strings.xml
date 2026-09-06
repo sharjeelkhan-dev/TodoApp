@@ -116,4 +116,18 @@
     <string name="error_display_name_empty">Display Name cannot be empty</string>
     <string name="error_password_too_short">Password must be at least 6 characters</string>
     <string name="error_passwords_dont_match">Passwords do not match</string>
+
+    <!-- Focus Mode -->
+    <string name="focus">Focus</string>
+    <string name="tasks_label">Tasks</string>
+    <string name="work_time">Work Time</string>
+    <string name="short_break">Short Break</string>
+    <string name="long_break">Long Break</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="reset_timer">Reset</string>
+    <string name="select_task_to_focus">Select a task to focus on</string>
+    <string name="focus_completed">Focus session completed!</string>
+    <string name="take_a_break">Time to take a break.</string>
+    <string name="back_to_work">Break is over, back to work!</string>
 </resources>

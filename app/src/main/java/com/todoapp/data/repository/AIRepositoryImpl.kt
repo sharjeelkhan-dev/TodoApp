@@ -1,14 +1,15 @@
 package com.todoapp.data.repository
-import com.google.firebase.ai.GenerativeModel as FirebaseGenerativeModel
-import com.google.ai.client.generativeai.GenerativeModel as GoogleGenerativeModel
+
+import android.util.Log
 import com.google.ai.client.generativeai.type.generationConfig
+import com.google.ai.client.generativeai.GenerativeModel as GoogleGenerativeModel
+import com.google.firebase.ai.GenerativeModel as FirebaseGenerativeModel
 import com.todoapp.data.local.PreferenceManager
 import com.todoapp.domain.model.AIAction
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
 import com.todoapp.domain.repository.AIRepository
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -48,7 +49,7 @@ class AIRepositoryImpl @Inject constructor(
                         responseMimeType = "application/json"
                     }
                     val googleModel = GoogleGenerativeModel(
-                        modelName = "gemini-3.5-flash", // Using the latest Gemini 3.5 model
+                        modelName = "gemini-3.5-flash",
                         apiKey = customKey,
                         generationConfig = config
                     )
@@ -95,9 +96,9 @@ class AIRepositoryImpl @Inject constructor(
             Log.d("AIRepository", "Sending prompt to AI")
             val responseText = generateContent(prompt) ?: return@withContext Result.failure(Exception("Empty AI response"))
             Log.d("AIRepository", "AI Response received: $responseText")
-            
+
             val jsonString = responseText.replace("```json", "").replace("```", "").trim()
-            
+
             val jsonObject = JSONObject(jsonString)
             val scores = mutableMapOf<String, Int>()
             val keys = jsonObject.keys()
@@ -105,7 +106,7 @@ class AIRepositoryImpl @Inject constructor(
                 val id = keys.next()
                 scores[id] = jsonObject.getInt(id)
             }
-            
+
             Log.d("AIRepository", "Prioritization successful. Scores: $scores")
             Result.success(scores)
         } catch (e: Exception) {
@@ -122,7 +123,7 @@ class AIRepositoryImpl @Inject constructor(
             }
 
             val systemPrompt = """
-                You are a task management assistant. Your goal is to parse a user's natural language command into a list of structured task operations.
+                You are an AI task assistant. Your job is to parse user commands into a list of structured JSON actions.
                 
                 Current Tasks:
                 $taskListString
@@ -130,19 +131,42 @@ class AIRepositoryImpl @Inject constructor(
                 Available Categories: ${TaskCategory.entries.joinToString { it.name }}
                 Available Priorities: ${TaskPriority.entries.joinToString { it.name }}
                 
-                Rules:
-                1. For "ADD": provide title, optional description, priority (default MEDIUM), category (default OTHER), and optional dueDate (YYYY-MM-DD).
-                2. For "UPDATE": provide taskId and fields to change.
-                3. For "DELETE": provide taskId.
-                4. For "TOGGLE_COMPLETION": provide taskId and isCompleted (true/false).
-                
-                Respond ONLY with a valid JSON array of objects.
-                Each object must have "action" field.
+                Supported Actions and Rules:
+                1. "ADD":
+                   - Fields: "title", "description" (optional), "priority" (default MEDIUM), "category" (default OTHER), "dueDate" (YYYY-MM-DD, optional), "subTasks" (string array, optional).
+                2. "ADD_SUBTASK":
+                   - Fields: "taskId", "subTaskTitle".
+                3. "UPDATE":
+                   - Fields: "taskId", "title" (optional), "description" (optional), "priority" (optional), "category" (optional), "dueDate" (optional).
+                4. "DELETE":
+                   - Fields: "taskId".
+                5. "DELETE_MULTIPLE":
+                   - Fields: "taskIds" (array of task ID strings).
+                6. "DELETE_SUBTASK":
+                   - Fields: "taskId", "subTaskId".
+                7. "TOGGLE_COMPLETION":
+                   - Fields: "taskId", "isCompleted" (boolean).
+                8. "TOGGLE_SUBTASK_COMPLETION":
+                   - Fields: "taskId", "subTaskId", "isCompleted" (boolean).
+                9. "GENERATE_SUBTASKS":
+                   - Fields: "taskId".
+
+                Respond ONLY with a valid JSON array of action objects.
                 
                 Example:
                 [
-                  {"action": "ADD", "title": "Buy milk", "priority": "HIGH", "category": "SHOPPING"},
-                  {"action": "TOGGLE_COMPLETION", "taskId": "123", "isCompleted": true}
+                  {
+                    "action": "ADD",
+                    "title": "Buy groceries",
+                    "priority": "HIGH",
+                    "category": "SHOPPING",
+                    "subTasks": ["Milk", "Eggs", "Bread"]
+                  },
+                  {
+                    "action": "ADD_SUBTASK",
+                    "taskId": "task123",
+                    "subTaskTitle": "Review PR"
+                  }
                 ]
                 
                 User Command: "$prompt"
@@ -151,55 +175,107 @@ class AIRepositoryImpl @Inject constructor(
             Log.d("AIRepository", "Sending command prompt to AI")
             val responseText = generateContent(systemPrompt) ?: return@withContext Result.failure(Exception("Empty AI response"))
             Log.d("AIRepository", "AI Response received: $responseText")
-            
+
             val jsonString = responseText.replace("```json", "").replace("```", "").trim()
             val jsonArray = JSONArray(jsonString)
             val actions = mutableListOf<AIAction>()
-            
+
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-            
+
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
                 val actionType = obj.getString("action")
-                
+
                 try {
                     when (actionType) {
                         "ADD" -> {
+                            val subTasksList = mutableListOf<String>()
+                            if (obj.has("subTasks")) {
+                                val subTasksJson = obj.getJSONArray("subTasks")
+                                for (j in 0 until subTasksJson.length()) {
+                                    subTasksList.add(subTasksJson.getString(j))
+                                }
+                            }
                             actions.add(
                                 AIAction.Add(
                                     title = obj.getString("title"),
                                     description = obj.optString("description", ""),
                                     priority = TaskPriority.valueOf(obj.optString("priority", "MEDIUM")),
                                     category = TaskCategory.valueOf(obj.optString("category", "OTHER")),
-                                    dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null
+                                    dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null,
+                                    subTasks = subTasksList
+                                )
+                            )
+                        }
+                        "ADD_SUBTASK" -> {
+                            actions.add(
+                                AIAction.AddSubTask(
+                                    taskId = obj.getString("taskId"),
+                                    subTaskTitle = obj.getString("subTaskTitle")
                                 )
                             )
                         }
                         "UPDATE" -> {
-                            actions.add(AIAction.Update(
-                                taskId = obj.getString("taskId"),
-                                title = if (obj.has("title")) obj.getString("title") else null,
-                                description = if (obj.has("description")) obj.getString("description") else null,
-                                priority = if (obj.has("priority")) TaskPriority.valueOf(obj.getString("priority")) else null,
-                                category = if (obj.has("category")) TaskCategory.valueOf(obj.getString("category")) else null,
-                                dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null
-                            ))
+                            actions.add(
+                                AIAction.Update(
+                                    taskId = obj.getString("taskId"),
+                                    title = if (obj.has("title")) obj.getString("title") else null,
+                                    description = if (obj.has("description")) obj.getString("description") else null,
+                                    priority = if (obj.has("priority")) TaskPriority.valueOf(obj.getString("priority")) else null,
+                                    category = if (obj.has("category")) TaskCategory.valueOf(obj.getString("category")) else null,
+                                    dueDate = if (obj.has("dueDate")) dateFormat.parse(obj.getString("dueDate")) else null
+                                )
+                            )
                         }
                         "DELETE" -> {
                             actions.add(AIAction.Delete(taskId = obj.getString("taskId")))
                         }
+                        "DELETE_MULTIPLE" -> {
+                            val idList = mutableListOf<String>()
+                            val array = obj.getJSONArray("taskIds")
+                            for (j in 0 until array.length()) {
+                                idList.add(array.getString(j))
+                            }
+                            actions.add(AIAction.DeleteMultiple(taskIds = idList))
+                        }
+                        "DELETE_SUBTASK" -> {
+                            actions.add(
+                                AIAction.DeleteSubTask(
+                                    taskId = obj.getString("taskId"),
+                                    subTaskId = obj.getString("subTaskId")
+                                )
+                            )
+                        }
                         "TOGGLE_COMPLETION" -> {
-                            actions.add(AIAction.ToggleCompletion(
-                                taskId = obj.getString("taskId"),
-                                isCompleted = obj.getBoolean("isCompleted")
-                            ))
+                            actions.add(
+                                AIAction.ToggleCompletion(
+                                    taskId = obj.getString("taskId"),
+                                    isCompleted = obj.getBoolean("isCompleted")
+                                )
+                            )
+                        }
+                        "TOGGLE_SUBTASK_COMPLETION" -> {
+                            actions.add(
+                                AIAction.ToggleSubTaskCompletion(
+                                    taskId = obj.getString("taskId"),
+                                    subTaskId = obj.getString("subTaskId"),
+                                    isCompleted = obj.getBoolean("isCompleted")
+                                )
+                            )
+                        }
+                        "GENERATE_SUBTASKS" -> {
+                            actions.add(
+                                AIAction.GenerateSubTasks(
+                                    taskId = obj.getString("taskId")
+                                )
+                            )
                         }
                     }
                 } catch (e: Exception) {
                     Log.w("AIRepository", "Skipping invalid AI action: $obj", e)
                 }
             }
-            
+
             Log.d("AIRepository", "Parsed ${actions.size} actions from AI")
             Result.success(actions)
         } catch (e: Exception) {
