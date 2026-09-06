@@ -5,8 +5,7 @@
 
 | Subsystem | Technical Execution Architecture |
 | :--- | :--- |
-| 🤖 **AI-Powered Commands** | Manage your tasks using natural language (e.g., *"Add a task to buy groceries at 5 PM"*), 
- and let Gemini AI handle the rest with Voice-to-Task (Advanced) and used with Gemini voice parsing. |
+| 🤖 **AI-Powered Commands** | Manage your tasks using natural language (e.g., *"Add a task to buy groceries at 5 PM"*), and let Gemini AI handle the rest with Voice-to-Task (Advanced) and used with Gemini voice parsing. |
 | 🧠 **Smart Prioritization** | An AI-driven engine that analyzes task deadlines, priorities, and descriptions to calculate a "Smart Score" (0-100). |
 | 🕧 **Work-Time** | Focusing on the task to complete in specific time just like stop-watch. |
 | 🔄 **Seamless Cloud Sync** | Offline-first architecture using Room Database with real-time cloud synchronization via Firebase Firestore. |
