@@ -12,6 +12,7 @@
 | 📅 **Smart Reminders** | Intelligent notification system powered by WorkManager to ensure you never miss a deadline. |
 | 🔒 **Secure & Robust** | Integrated with Firebase App Check (Play Integrity) and Firebase Authentication for enterprise-grade security. |
 | 🌗 **Dark Mode Support** | Beautiful, accessible UI that respects system theme settings with custom Material 3 components. |
+| 🎨 **Asset Attribution** | Core system actions, navigation nodes, and modern news channel vector elements curated via [Uxwing](https://uxwing.com/). |
 
 <details>
 <summary><b>✨ View Interface Design (Click to Expand)</b></summary>
