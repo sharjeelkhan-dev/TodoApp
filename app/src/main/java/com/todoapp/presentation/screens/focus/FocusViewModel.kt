@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.todoapp.domain.model.FilterOption
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.repository.TaskRepository
+import com.todoapp.service.FocusNotificationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,7 +43,8 @@ sealed class FocusEvent {
 
 @HiltViewModel
 class FocusViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val notificationService: FocusNotificationService
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FocusState())
@@ -106,6 +108,11 @@ class FocusViewModel @Inject constructor(
     }
 
     private fun onSessionComplete() {
+        val completedType = _state.value.currentSessionType
+        notificationService.showFocusCompleteNotification(
+            isBreak = completedType != SessionType.WORK
+        )
+
         _state.update {
             val nextSessionCount = if (it.currentSessionType == SessionType.WORK) it.sessionCount + 1 else it.sessionCount
             val nextType = when (it.currentSessionType) {
