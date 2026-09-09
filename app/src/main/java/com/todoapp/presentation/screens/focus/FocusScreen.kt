@@ -309,7 +309,6 @@ fun TimerRing(
         val strokeWidth = 14.dp.toPx()
         val radius = (size.minDimension - strokeWidth) / 2
         val center = size.center
-
         val arcRect = Rect(
             center = center,
             radius = radius
