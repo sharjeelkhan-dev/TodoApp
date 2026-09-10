@@ -82,7 +82,6 @@ fun FocusScreen(
     viewModel: FocusViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-
     FocusScreenContent(
         isDarkMode = isDarkMode,
         currentSessionType = state.currentSessionType,
