@@ -25,45 +25,39 @@ class VoiceToTextParser @Inject constructor(
     private var recognizer: SpeechRecognizer? = null
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    private fun initRecognizer() {
-        if (recognizer == null && SpeechRecognizer.isRecognitionAvailable(app)) {
-            recognizer = SpeechRecognizer.createSpeechRecognizer(app).apply {
-                setRecognitionListener(this@VoiceToTextParser)
-            }
-        }
-    }
-
     fun startListening(languageCode: String = "en-US") {
-        // Ensure execution happens on the Main Thread to avoid SpeechRecognizer thread checks exception
         mainHandler.post {
             if (!SpeechRecognizer.isRecognitionAvailable(app)) {
                 _state.update {
                     it.copy(
-                        error = "Speech recognition is not available on this device",
+                        error = "Speech recognition is not available",
                         isSpeaking = false
                     )
                 }
                 return@post
             }
 
-            initRecognizer()
+            recognizer?.destroy()
+            recognizer = SpeechRecognizer.createSpeechRecognizer(app).apply {
+                setRecognitionListener(this@VoiceToTextParser)
+            }
 
-            // Reset previous state on new listening session
             _state.update {
                 VoiceToTextParserState(
                     isSpeaking = true,
                     spokenText = "",
-                    error = null
+                    error = null,
+                    isFinal = false
                 )
             }
 
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                )
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+                // Attempt to extend silence timeouts
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 5000L)
             }
 
             recognizer?.startListening(intent)
@@ -77,18 +71,17 @@ class VoiceToTextParser @Inject constructor(
         }
     }
 
-    fun destroy() {
-        mainHandler.post {
-            recognizer?.destroy()
-            recognizer = null
-        }
+    fun reset() {
+        _state.update { VoiceToTextParserState() }
     }
 
     override fun onReadyForSpeech(params: Bundle?) {
         _state.update { it.copy(error = null) }
     }
 
-    override fun onBeginningOfSpeech() = Unit
+    override fun onBeginningOfSpeech() {
+        _state.update { it.copy(isSpeaking = true) }
+    }
 
     override fun onRmsChanged(rmsdB: Float) {
         _state.update { it.copy(rmsValue = rmsdB) }
@@ -101,51 +94,57 @@ class VoiceToTextParser @Inject constructor(
     }
 
     override fun onError(error: Int) {
-        if (error == SpeechRecognizer.ERROR_CLIENT || error == SpeechRecognizer.ERROR_NO_MATCH) {
-            _state.update { it.copy(isSpeaking = false) }
-            return
-        }
+        mainHandler.post {
+            // Error 7 is NO_MATCH, Error 6 is SPEECH_TIMEOUT
+            if (error == 7 || error == 6) {
+                if (_state.value.spokenText.isNotBlank()) {
+                    _state.update { it.copy(isSpeaking = false, isFinal = true) }
+                } else {
+                    _state.update { it.copy(isSpeaking = false, error = "No speech detected") }
+                }
+                return@post
+            }
 
-        val errorMessage = when (error) {
-            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission required"
-            SpeechRecognizer.ERROR_NETWORK -> "Network connection error"
-            SpeechRecognizer.ERROR_NO_MATCH -> "No speech recognized"
-            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech input timeout"
-            else -> "Speech recognition error ($error)"
-        }
+            if (error == 5) { // ERROR_CLIENT
+                _state.update { it.copy(isSpeaking = false) }
+                return@post
+            }
 
-        _state.update {
-            it.copy(
-                error = errorMessage,
-                isSpeaking = false
-            )
+            _state.update {
+                it.copy(
+                    error = "Error code: $error",
+                    isSpeaking = false
+                )
+            }
         }
     }
 
     override fun onResults(results: Bundle?) {
-        results
-            ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-            ?.getOrNull(0)
-            ?.let { result ->
-                _state.update {
-                    it.copy(
-                        spokenText = result,
-                        isSpeaking = false
-                    )
+        mainHandler.post {
+            results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.getOrNull(0)
+                ?.let { result ->
+                    _state.update {
+                        it.copy(
+                            spokenText = result,
+                            isSpeaking = false,
+                            isFinal = true
+                        )
+                    }
                 }
-            }
+        }
     }
 
     override fun onPartialResults(partialResults: Bundle?) {
-        partialResults
-            ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-            ?.getOrNull(0)
-            ?.let { result ->
-                _state.update {
-                    it.copy(spokenText = result)
+        mainHandler.post {
+            partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.getOrNull(0)
+                ?.let { result ->
+                    _state.update {
+                        it.copy(spokenText = result)
+                    }
                 }
-            }
+        }
     }
 
     override fun onEvent(eventType: Int, params: Bundle?) = Unit
@@ -155,5 +154,6 @@ data class VoiceToTextParserState(
     val spokenText: String = "",
     val isSpeaking: Boolean = false,
     val error: String? = null,
-    val rmsValue: Float = 0f
+    val rmsValue: Float = 0f,
+    val isFinal: Boolean = false
 )

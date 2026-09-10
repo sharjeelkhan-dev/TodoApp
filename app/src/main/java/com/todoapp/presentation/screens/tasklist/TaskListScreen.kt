@@ -213,6 +213,13 @@ fun TaskListScreen(
 
     if (state.isAICommandDialogOpen) {
         var aiPrompt by remember { mutableStateOf("") }
+        
+        // Sync aiPrompt with voice results
+        LaunchedEffect(state.voiceText) {
+            if (state.voiceText.isNotBlank()) {
+                aiPrompt = state.voiceText
+            }
+        }
         val suggestions = listOf("Add task...", "Mark as done...", "Delete old...")
 
         Dialog(
@@ -255,7 +262,10 @@ fun TaskListScreen(
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(
-                            onClick = { onEvent(TaskListEvent.ToggleAICommandDialog) },
+                            onClick = { 
+                                onEvent(TaskListEvent.StopListening)
+                                onEvent(TaskListEvent.ToggleAICommandDialog) 
+                            },
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(Icons.Default.Close, null, tint = secondaryText, modifier = Modifier.size(20.dp))

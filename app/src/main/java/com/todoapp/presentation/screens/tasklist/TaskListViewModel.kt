@@ -53,12 +53,14 @@ class TaskListViewModel @Inject constructor(
                 _state.update { 
                     it.copy(
                         isListening = voiceState.isSpeaking,
+                        voiceText = voiceState.spokenText,
                         voiceError = voiceState.error,
                         rmsValue = voiceState.rmsValue
                     )
                 }
-                if (voiceState.spokenText.isNotBlank()) {
+                if (voiceState.isFinal && voiceState.spokenText.isNotBlank()) {
                     executeAICommand(voiceState.spokenText)
+                    voiceToTextParser.reset()
                 }
             }
         }
@@ -143,6 +145,9 @@ class TaskListViewModel @Inject constructor(
             TaskListEvent.RefreshTasks -> observeTasks()
             TaskListEvent.SmartPrioritize -> smartPrioritize()
             TaskListEvent.ToggleAICommandDialog -> {
+                if (!_state.value.isAICommandDialogOpen) {
+                    voiceToTextParser.reset()
+                }
                 _state.update { it.copy(isAICommandDialogOpen = !it.isAICommandDialogOpen) }
             }
             is TaskListEvent.ExecuteAICommand -> executeAICommand(event.prompt)

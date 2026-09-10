@@ -21,6 +21,7 @@ data class TaskListState(
     val recentlyDeletedTask: Task? = null,
     val showFilterSheet: Boolean = false,
     val isListening: Boolean = false,
+    val voiceText: String = "",
     val voiceError: String? = null,
     val rmsValue: Float = 0f,
 )

@@ -137,7 +137,7 @@ fun FocusScreenContent(
             .fillMaxSize()
             .background(bgColor)
     ) {
-        // Floating Ambient Background Elements (Adjusted inside screen bounds)
+        // Floating Ambient Background Elements
         Box(modifier = Modifier.fillMaxSize().alpha(0.4f)) {
             FloatingElement(
                 modifier = Modifier
@@ -194,7 +194,7 @@ fun FocusScreenContent(
                 if (!timerRunning) {
                     AdjustButton(
                         icon = Icons.Rounded.Remove,
-                        onClick = { onAdjustTime(-5) },
+                        onClick = { onAdjustTime(-1) },
                         isDarkMode = isDarkMode
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -253,7 +253,7 @@ fun FocusScreenContent(
                     Spacer(modifier = Modifier.width(16.dp))
                     AdjustButton(
                         icon = Icons.Rounded.Add,
-                        onClick = { onAdjustTime(5) },
+                        onClick = { onAdjustTime(1) },
                         isDarkMode = isDarkMode
                     )
                 }
@@ -404,26 +404,43 @@ fun AdjustButton(
     val scale by animateFloatAsState(if (isPressed) 0.85f else 1f, label = "scale")
     val brandColor = Color(0xFF6C5CE7)
 
+    val buttonBgColor = if (isDarkMode) {
+        brandColor.copy(alpha = 0.15f)
+    } else {
+        Color.White
+    }
+
+    val borderStroke = if (isDarkMode) {
+        BorderStroke(1.dp, brandColor.copy(alpha = 0.25f))
+    } else {
+        BorderStroke(1.5.dp, brandColor.copy(alpha = 0.20f))
+    }
+
     Surface(
         onClick = onClick,
         interactionSource = interactionSource,
         shape = CircleShape,
-        color = if (isDarkMode) brandColor.copy(alpha = 0.15f) else brandColor.copy(alpha = 0.08f),
-        border = BorderStroke(1.dp, brandColor.copy(alpha = 0.2f)),
+        color = buttonBgColor,
+        border = borderStroke,
         modifier = Modifier
             .size(48.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .shadow(if (isDarkMode) 0.dp else 2.dp, CircleShape)
+            .shadow(
+                elevation = if (isDarkMode) 0.dp else 6.dp,
+                shape = CircleShape,
+                spotColor = if (isDarkMode) Color.Transparent else brandColor.copy(alpha = 0.25f),
+                ambientColor = if (isDarkMode) Color.Transparent else Color.Black.copy(alpha = 0.08f)
+            )
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.size(24.dp)
+                tint = brandColor,
+                modifier = Modifier.size(22.dp)
             )
         }
     }
