@@ -129,7 +129,7 @@ class FirestoreDataSource @Inject constructor(
                 syncStatus = 0,
                 subTasks = getString("subTasks")
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

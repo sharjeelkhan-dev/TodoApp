@@ -97,7 +97,7 @@ class ReminderWorker @AssistedInject constructor(
         try {
             NotificationManagerCompat.from(applicationContext)
                 .notify(taskId.hashCode(), notification)
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             // Permission might have been revoked
         }
     }
