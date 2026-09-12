@@ -7,10 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Implementation of AuthRepository.
- * Delegates all operations to FirebaseAuthDataSource.
- */
+
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authDataSource: FirebaseAuthDataSource

@@ -7,10 +7,6 @@ import androidx.room.Upsert
 import com.todoapp.data.local.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Data Access Object for the tasks table.
- * Provides all CRUD and query operations for tasks.
- */
 @Dao
 interface TaskDao {
 

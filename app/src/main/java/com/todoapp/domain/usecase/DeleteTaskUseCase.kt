@@ -4,9 +4,7 @@ import com.todoapp.domain.model.Task
 import com.todoapp.domain.repository.TaskRepository
 import javax.inject.Inject
 
-/**
- * Use case for deleting a task.
- */
+
 class DeleteTaskUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

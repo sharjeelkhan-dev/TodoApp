@@ -6,9 +6,6 @@ import com.todoapp.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-/**
- * Use case to trigger AI-based task prioritization and update tasks with recommended scores.
- */
 class GetSmartPrioritizationUseCase @Inject constructor(
     private val taskRepository: TaskRepository,
     private val aiRepository: AIRepository

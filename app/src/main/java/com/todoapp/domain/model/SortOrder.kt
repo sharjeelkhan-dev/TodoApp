@@ -1,8 +1,6 @@
 package com.todoapp.domain.model
 
-/**
- * Defines how tasks can be sorted in the list view.
- */
+
 enum class SortOrder(val label: String) {
     DATE_CREATED_ASC("Oldest First"),
     DATE_CREATED_DESC("Newest First"),

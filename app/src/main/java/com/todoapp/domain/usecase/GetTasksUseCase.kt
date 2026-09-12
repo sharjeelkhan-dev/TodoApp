@@ -6,9 +6,6 @@ import com.todoapp.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-/**
- * Use case for retrieving tasks with filters applied.
- */
 class GetTasksUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

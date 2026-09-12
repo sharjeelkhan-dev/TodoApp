@@ -13,10 +13,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel for Splash Screen.
- * Simplified: Authentication removed. Directly loads real-time task statistics.
- */
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val taskRepository: TaskRepository,

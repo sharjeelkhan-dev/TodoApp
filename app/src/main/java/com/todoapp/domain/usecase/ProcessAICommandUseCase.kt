@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.first
 import java.util.UUID
 import javax.inject.Inject
 
-
 class ProcessAICommandUseCase @Inject constructor(
     private val aiRepository: AIRepository,
     private val taskRepository: TaskRepository,

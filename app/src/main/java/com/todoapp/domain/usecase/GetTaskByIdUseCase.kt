@@ -5,9 +5,6 @@ import com.todoapp.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-/**
- * Use case for retrieving a single task by its ID.
- */
 class GetTaskByIdUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

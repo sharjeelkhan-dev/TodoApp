@@ -1,8 +1,6 @@
 package com.todoapp.presentation.screens.auth
 
-/**
- * UI state for the Login screen.
- */
+
 data class LoginState(
     val email: String = "",
     val password: String = "",

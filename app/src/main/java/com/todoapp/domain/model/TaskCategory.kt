@@ -1,9 +1,6 @@
 package com.todoapp.domain.model
 
-/**
- * Represents the category of a task.
- * Each category has a display label and an icon name (Material icon).
- */
+
 enum class TaskCategory(val label: String, val iconName: String) {
     WORK("Work", "work"),
     PERSONAL("Personal", "person"),

@@ -2,9 +2,7 @@ package com.todoapp.presentation.screens.settings
 
 import com.todoapp.domain.model.UserProfile
 
-/**
- * UI state for the Settings screen.
- */
+
 data class SettingsState(
     val userProfile: UserProfile? = null,
     val isBackupLoading: Boolean = false,

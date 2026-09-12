@@ -59,10 +59,7 @@ import androidx.compose.ui.res.stringResource
 import com.todoapp.R
 import com.todoapp.presentation.theme.TodoAppTheme
 
-/**
- * Settings screen matching the provided UI design precisely.
- * Correctly handles theme-aware colors and loading indicator placement.
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(

@@ -21,10 +21,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel for the Task List screen.
- * Handles task retrieval, filtering, searching, deletion, and undo.
- */
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,

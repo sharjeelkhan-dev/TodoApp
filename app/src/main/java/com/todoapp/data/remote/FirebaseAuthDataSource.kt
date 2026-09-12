@@ -10,10 +10,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Firebase Authentication data source.
- * Handles all authentication operations (email, Google).
- */
+
 @Singleton
 class FirebaseAuthDataSource @Inject constructor(
     private val auth: FirebaseAuth

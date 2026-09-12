@@ -4,10 +4,7 @@ import com.todoapp.domain.model.Task
 import com.todoapp.domain.repository.TaskRepository
 import javax.inject.Inject
 
-/**
- * Use case for adding a new task.
- * Validates input before delegating to the repository.
- */
+
 class AddTaskUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

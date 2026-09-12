@@ -4,9 +4,6 @@ import com.todoapp.domain.model.Task
 import com.todoapp.domain.repository.TaskRepository
 import javax.inject.Inject
 
-/**
- * Use case for updating an existing task.
- */
 class UpdateTaskUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

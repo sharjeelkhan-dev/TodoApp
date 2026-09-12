@@ -15,10 +15,7 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Implementation of TaskRepository.
- * Bridges Room (local) and Firestore (remote) data sources.
- */
+
 @Singleton
 class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao,

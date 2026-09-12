@@ -9,9 +9,6 @@ import java.util.Date
 private val gson = Gson()
 private val subTaskType = object : TypeToken<List<SubTask>>() {}.type
 
-/**
- * Room type converters for storing complex types in SQLite.
- */
 class Converters {
 
     @TypeConverter

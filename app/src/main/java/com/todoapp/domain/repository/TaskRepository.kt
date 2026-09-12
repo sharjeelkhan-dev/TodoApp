@@ -4,10 +4,6 @@ import com.todoapp.domain.model.FilterOption
 import com.todoapp.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository interface for Task operations.
- * The implementation bridges local (Room) and remote (Firestore) data sources.
- */
 interface TaskRepository {
 
     /** Observe all tasks with optional filtering. */

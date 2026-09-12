@@ -4,9 +4,6 @@ import com.todoapp.domain.model.UserProfile
 import com.todoapp.domain.repository.AuthRepository
 import javax.inject.Inject
 
-/**
- * Use case for creating a new account with email/password.
- */
 class SignUpUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {

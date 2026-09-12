@@ -4,9 +4,6 @@ import com.todoapp.domain.model.UserProfile
 import com.todoapp.domain.repository.AuthRepository
 import javax.inject.Inject
 
-/**
- * Use case for signing in with email/password or Google.
- */
 class SignInUseCase @Inject constructor(
     private val repository: AuthRepository
 ) {

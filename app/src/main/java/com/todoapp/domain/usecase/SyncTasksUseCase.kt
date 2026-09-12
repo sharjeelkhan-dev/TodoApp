@@ -3,9 +3,6 @@ package com.todoapp.domain.usecase
 import com.todoapp.domain.repository.TaskRepository
 import javax.inject.Inject
 
-/**
- * Use case for syncing tasks between local and cloud storage.
- */
 class SyncTasksUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

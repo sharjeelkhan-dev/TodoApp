@@ -5,10 +5,6 @@ import com.todoapp.domain.model.SortOrder
 import com.todoapp.domain.model.Task
 import com.todoapp.domain.model.TaskCategory
 import com.todoapp.domain.model.TaskPriority
-
-/**
- * UI state for the Task List screen.
- */
 data class TaskListState(
     val tasks: List<Task> = emptyList(),
     val searchQuery: String = "",

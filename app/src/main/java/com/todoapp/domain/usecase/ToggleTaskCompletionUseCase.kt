@@ -3,9 +3,6 @@ package com.todoapp.domain.usecase
 import com.todoapp.domain.repository.TaskRepository
 import javax.inject.Inject
 
-/**
- * Use case for toggling a task's completion status.
- */
 class ToggleTaskCompletionUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {

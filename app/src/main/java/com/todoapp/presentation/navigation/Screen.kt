@@ -1,8 +1,6 @@
 package com.todoapp.presentation.navigation
 
-/**
- * Defines all navigation routes/screens in the app.
- */
+
 sealed class Screen(val route: String) {
     data object Splash : Screen("splash_screen")
     data object Login : Screen("login_screen")

@@ -3,9 +3,6 @@ package com.todoapp.domain.repository
 import com.todoapp.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository interface for Authentication operations.
- */
 interface AuthRepository {
 
     /** Observe current user authentication state. */

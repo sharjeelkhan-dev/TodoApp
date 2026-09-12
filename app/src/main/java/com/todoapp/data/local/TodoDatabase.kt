@@ -7,10 +7,6 @@ import com.todoapp.data.local.converter.Converters
 import com.todoapp.data.local.dao.TaskDao
 import com.todoapp.data.local.entity.TaskEntity
 
-/**
- * Room database for the TodoApp.
- * Acts as the single source of truth in the offline-first architecture.
- */
 @Database(
     entities = [TaskEntity::class],
     version = 7,

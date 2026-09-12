@@ -19,10 +19,6 @@ import com.todoapp.presentation.screens.splash.SplashViewModel
 import com.todoapp.presentation.screens.settings.SettingsScreen
 import com.todoapp.presentation.screens.settings.SettingsViewModel
 
-/**
- * Main navigation graph for the app.
- * Starts with Splash Screen which logs in user anonymously in background.
- */
 @Composable
 fun NavGraph(
     navController: NavHostController,
