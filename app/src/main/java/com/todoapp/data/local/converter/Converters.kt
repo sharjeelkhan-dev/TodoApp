@@ -10,7 +10,6 @@ private val gson = Gson()
 private val subTaskType = object : TypeToken<List<SubTask>>() {}.type
 
 class Converters {
-
     @TypeConverter
     fun fromTimestamp(value: Long?): Date? {
         return value?.let { Date(it) }
