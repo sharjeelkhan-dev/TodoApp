@@ -23,13 +23,11 @@ class PreferenceManager @Inject constructor(
     val apiKey: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[apiKeyPreference]
     }
-
     suspend fun saveApiKey(key: String) {
         context.dataStore.edit { preferences ->
             preferences[apiKeyPreference] = key
         }
     }
-
     suspend fun clearApiKey() {
         context.dataStore.edit { preferences ->
             preferences.remove(apiKeyPreference)
