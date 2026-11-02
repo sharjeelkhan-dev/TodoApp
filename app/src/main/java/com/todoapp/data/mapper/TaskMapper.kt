@@ -71,6 +71,5 @@ fun Task.toEntity(syncStatus: Int = 1): TaskEntity {
         subTasks = gson.toJson(subTasks)
     )
 }
-
 /** Convert a list of entities to domain models. */
 fun List<TaskEntity>.toDomainModels(): List<Task> = map { it.toDomainModel() }
